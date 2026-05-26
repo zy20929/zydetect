@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm --no-turbopack)",
+      "Bash(npm install *)",
+      "Bash(npx next *)",
+      "WebSearch",
+      "Bash(npx tsc *)",
+      "Bash(npx tsx *)",
+      "Bash(tasklist)",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "Bash(lsof -ti:3000)",
+      "Bash(xargs kill -9)",
+      "Bash(fuser -k 3000/tcp)",
+      "Bash(curl -s http://localhost:3000 -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s http://localhost:3000/_next/static/css/app/layout.css)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(curl -s http://localhost:3000/_next/static/chunks/%5Broot-of-the-server%5D__0ejmoje._.css)",
+      "Bash(pkill -f \"next dev\")",
+      "WebFetch(domain:localhost)",
+      "Bash(curl -s \"http://localhost:3000/_next/static/chunks/%5Broot-of-the-server%5D__0ejmoje._.css\")",
+      "Bash(pkill -f \"next\")",
+      "Bash(grep -B 5 \"bg-\\\\\\\\\\\\[\")",
+      "Bash(curl -s \"http://localhost:3000\")",
+      "Bash(curl -sI \"http://localhost:3000/_next/static/chunks/%5Broot-of-the-server%5D__0ejmoje._.css\")",
+      "Bash(grep -A 1 \"bg-\\\\\\\\\\\\[\")",
+      "Bash(grep \"bg-\\\\\\\\\\\\[\")",
+      "Bash(python3 -c \"import json,sys; data=json.load\\(sys.stdin\\); tasks=[t for t in data if t['id'] < 34]; print\\(json.dumps\\(tasks\\)\\)\")",
+      "Bash(curl -s http://localhost:3000 -o /dev/null -w \"HTTP %{http_code}\")",
+      "Bash(npm ls *)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git config *)",
+      "Bash(git commit -m 'feat: initial commit - detective analysis app *)"
+    ]
+  }
+}

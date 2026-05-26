@@ -1,0 +1,266 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #0a0a1a;
+  --foreground: #e8e6e3;
+  --card-bg: #16213e;
+  --card-border: #2a2a4a;
+  --card-alt: #1a1a2e;
+  --card-accent: #0f3460;
+  --gold: #d4a853;
+  --gold-dim: #8b7332;
+  --report-font-size: 14px;
+  --starfield-bg: #0a0a1a;
+}
+
+/* 亮色主题 */
+html.light {
+  --background: #f5f5f0;
+  --foreground: #1a1a2e;
+  --card-bg: #ffffff;
+  --card-border: #e0ddd8;
+  --card-alt: #f0eeea;
+  --card-accent: #e8e6e0;
+  --gold: #b8941e;
+  --gold-dim: #a08030;
+  --starfield-bg: #f5f5f0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: var(--background) !important;
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* 推理步骤动画 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* 聚光灯扫过效果 */
+@keyframes spotlight {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.animate-spotlight {
+  animation: spotlight 4s ease-in-out infinite;
+}
+
+/* 打字机闪烁 */
+@keyframes type-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.animate-type-blink {
+  animation: type-blink 1.2s ease-in-out infinite;
+}
+
+/* 打字机逐字显示 */
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+.animate-typewriter {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typewriter 2s steps(40) forwards;
+}
+
+/* 加载动画 */
+@keyframes pulse-dot {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+.thinking-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse-dot 1.4s infinite ease-in-out;
+}
+
+.thinking-dot:nth-child(1) { animation-delay: -0.32s; }
+.thinking-dot:nth-child(2) { animation-delay: -0.16s; }
+
+/* 侦探氛围渐变 */
+@keyframes bg-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.detective-bg {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #1a1a2e 75%, #16213e 100%);
+  background-size: 400% 400%;
+  animation: bg-shift 20s ease infinite;
+}
+
+/* 卡片悬浮效果 */
+.detective-card {
+  transition: all 0.3s ease;
+}
+
+.detective-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(212, 168, 83, 0.15);
+}
+
+/* 边栏滚动条 */
+.sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: #2a2a4a;
+  border-radius: 2px;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: #d4a853;
+}
+
+/* 隐藏滚动条 */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ========== Canvas 星空容器 ========== */
+.starfield {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ========== 关键标签高亮样式 ========== */
+
+/* 【证据依据】高亮 */
+.evidence-tag {
+  display: inline;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.08));
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-weight: 600;
+  color: #60a5fa;
+  font-size: 0.85em;
+}
+
+/* 【确定程度】高亮 */
+.confidence-tag {
+  display: inline;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.08));
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-weight: 600;
+  font-size: 0.85em;
+}
+
+.confidence-tag[data-level="确凿"] {
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.4);
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.15), rgba(52, 211, 153, 0.08));
+}
+
+.confidence-tag[data-level="高概率"] {
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.4);
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(251, 191, 36, 0.08));
+}
+
+.confidence-tag[data-level="可能"] {
+  color: #a78bfa;
+  border-color: rgba(167, 139, 250, 0.4);
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(167, 139, 250, 0.08));
+}
+
+.confidence-tag[data-level="不确定"] {
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.4);
+  background: linear-gradient(135deg, rgba(248, 113, 113, 0.15), rgba(248, 113, 113, 0.08));
+}
+
+/* 【知识支撑】高亮 */
+.knowledge-tag {
+  display: inline;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.12), rgba(168, 85, 247, 0.06));
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-weight: 600;
+  color: #c084fc;
+  font-size: 0.85em;
+}
+
+/* 骨架屏动画 */
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* 进度条扫光 */
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #1a1a2e 25%, #2a2a4a 50%, #1a1a2e 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 2s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+.skeleton--text {
+  height: 14px;
+  width: 100%;
+}
+
+.skeleton--text-sm {
+  height: 10px;
+  width: 80%;
+}
+
+.skeleton--card {
+  height: 120px;
+  width: 100%;
+}
+
+/* 平板端断点优化 */
+@media (max-width: 1024px) {
+  .tablet-hidden {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .tablet-col-span-2 {
+    grid-column: span 2 / span 2;
+  }
+}
