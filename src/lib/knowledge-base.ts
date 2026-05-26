@@ -19,6 +19,7 @@ function getCategoryPath(category: KnowledgeCategory): string {
 
 /** 确保知识库目录存在 */
 function ensureDir(): void {
+  if (process.env.VERCEL || process.env.CF_PAGES) return;
   if (!fs.existsSync(KNOWLEDGE_DIR)) {
     fs.mkdirSync(KNOWLEDGE_DIR, { recursive: true });
   }
@@ -75,8 +76,21 @@ export function readAllEntries(): KnowledgeEntry[] {
 
 /** 添加知识条目到指定分类 */
 export function addEntry(category: KnowledgeCategory, entry: Omit<KnowledgeEntry, 'id' | 'analysisCount' | 'createdAt' | 'lastVerified'>): KnowledgeEntry {
-  ensureDir();
   const filePath = getCategoryPath(category);
+
+  // Cloudflare Pages: filesystem is read-only after build, skip write
+  if (process.env.VERCEL || process.env.CF_PAGES || !fs.writeFileSync) {
+    const newEntry: KnowledgeEntry = {
+      ...entry,
+      id: `${category}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      analysisCount: 1,
+      createdAt: new Date().toISOString(),
+      lastVerified: new Date().toISOString(),
+    };
+    return newEntry;
+  }
+
+  ensureDir();
 
   // 读取现有数据
   let data = { entries: [] as KnowledgeEntry[] };
@@ -162,6 +176,7 @@ export function searchKnowledge(keywords: string[]): KnowledgeEntry[] {
 /** 更新条目的分析计数 */
 export function incrementAnalysisCount(entryId: string, category: KnowledgeCategory): void {
   const filePath = getCategoryPath(category);
+  if (process.env.VERCEL || process.env.CF_PAGES) return;
   if (!fs.existsSync(filePath)) return;
 
   try {
@@ -179,6 +194,7 @@ export function incrementAnalysisCount(entryId: string, category: KnowledgeCateg
 
 /** 更新知识条目 */
 export function updateEntry(entryId: string, category: KnowledgeCategory, updates: Partial<Pick<KnowledgeEntry, 'content' | 'keywords' | 'confidence'>>): boolean {
+  if (process.env.VERCEL || process.env.CF_PAGES) return false;
   const filePath = getCategoryPath(category);
   if (!fs.existsSync(filePath)) return false;
 
@@ -201,6 +217,7 @@ export function updateEntry(entryId: string, category: KnowledgeCategory, update
 
 /** 删除知识条目 */
 export function deleteEntry(entryId: string, category: KnowledgeCategory): boolean {
+  if (process.env.VERCEL || process.env.CF_PAGES) return false;
   const filePath = getCategoryPath(category);
   if (!fs.existsSync(filePath)) return false;
 
@@ -239,6 +256,7 @@ export function getKnowledgeStats(): Record<KnowledgeCategory, { count: number; 
 
 /** 初始化空知识库文件 */
 export function initKnowledgeBase(): void {
+  if (process.env.VERCEL || process.env.CF_PAGES) return;
   ensureDir();
 
   for (const category of Object.keys(KNOWLEDGE_CATEGORIES) as KnowledgeCategory[]) {

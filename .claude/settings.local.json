@@ -33,7 +33,13 @@
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
       "Bash(git config *)",
-      "Bash(git commit -m 'feat: initial commit - detective analysis app *)"
+      "Bash(git commit -m 'feat: initial commit - detective analysis app *)",
+      "Bash(gh auth *)",
+      "Bash(git remote *)",
+      "Bash(git branch *)",
+      "Bash(git push *)",
+      "Bash(curl -s --connect-timeout 5 https://github.com)",
+      "Bash(git commit -m 'feat: prepare for Cloudflare Pages deployment *)"
     ]
   }
 }
