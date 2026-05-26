@@ -1,9 +1,0 @@
-{
-  "name": "zydetect",
-  "compatibility_date": "2026-05-26",
-  "compatibility_flags": ["nodejs_compat"],
-  "observability": {
-    "enabled": true
-  },
-  "services": []
-}
