@@ -39,7 +39,26 @@
       "Bash(git branch *)",
       "Bash(git push *)",
       "Bash(curl -s --connect-timeout 5 https://github.com)",
-      "Bash(git commit -m 'feat: prepare for Cloudflare Pages deployment *)"
+      "Bash(git commit -m 'feat: prepare for Cloudflare Pages deployment *)",
+      "Bash(git fetch *)",
+      "Bash(curl -s \"https://raw.githubusercontent.com/zy20929/zydetect/main/package.json\")",
+      "Bash(ls D:\\\\\\\\2026\\\\\\\\private-web\\\\\\\\zt\\\\\\\\.open-next)",
+      "Bash(ls D:\\\\\\\\2026\\\\\\\\private-web\\\\\\\\zt\\\\\\\\node_modules\\\\\\\\@opennextjs)",
+      "Bash(cd D:\\\\\\\\2026\\\\\\\\private-web\\\\\\\\zt)",
+      "WebFetch(domain:opennext.js.org)",
+      "WebFetch(domain:github.com)",
+      "Bash(gh issue *)",
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(env)",
+      "Bash(GIT_SSL_NO_VERIFY=true git *)",
+      "Bash(curl -sI --connect-timeout 5 https://github.com)",
+      "Bash(curl -sI --connect-timeout 5 -x http://127.0.0.1:7892 https://github.com)",
+      "Bash(node *)",
+      "Bash(npm uninstall *)",
+      "Bash(curl -s --connect-timeout 5 -x http://127.0.0.1:7892 https://api.github.com/user)",
+      "Bash(git *)",
+      "Bash(curl -sI https://zydetect.pages.dev)",
+      "Bash(curl -v https://zydetect.pages.dev)"
     ]
   }
 }
