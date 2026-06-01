@@ -145,22 +145,39 @@ function DetectivePanel({ detective }: { detective: DetectiveReasoning }) {
   const [viewMode, setViewMode] = useState<'timeline' | 'mindmap'>('mindmap');
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // 流式文本自动滚动 — 使用 useEffect + rAF 确保浏览器完成布局计算
+  // 流式文本自动滚动 — 双保险方案：
+  // 1. React useEffect 在 fullText 变化时滚动
+  // 2. 独立 zustand 订阅，不依赖渲染直接操作 DOM
+  const detectiveId = detective.detectiveId;
+
   useEffect(() => {
     const el = scrollRef.current;
-    if (!el) {
-      console.log('[auto-scroll] scrollRef is null');
-      return;
-    }
-    console.log('[auto-scroll] fullText length:', detective.fullText.length, 'scheduling scroll');
-    // 在 rAF 回调中读取 scrollHeight，确保 DOM 已更新且布局已计算
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        console.log('[auto-scroll] scrolling to:', el.scrollHeight);
-        el.scrollTop = el.scrollHeight;
-      });
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+  }, [detective.fullText, detective._tick]);
+
+  // 独立订阅：直接监听 store 中对应侦探的变化，不经过 React 渲染
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    // 订阅 zustand store，当该侦探的 fullText 或 _tick 变化时直接滚动
+    const unsub = useAnalysisStore.subscribe((state, prevState) => {
+      const cur = state.detectives[detectiveId];
+      const prev = prevState.detectives[detectiveId];
+      if (
+        cur && prev &&
+        (cur.fullText !== prev.fullText || cur._tick !== prev._tick)
+      ) {
+        // 用 rAF 确保 DOM 已更新
+        requestAnimationFrame(() => {
+          if (el) el.scrollTop = el.scrollHeight;
+        });
+      }
     });
-  }, [detective.fullText]);
+
+    return unsub;
+  }, [detectiveId]);
 
   // 去除 Markdown 的纯文本用于实时显示
   const displayText = hasFullText ? stripMarkdown(detective.fullText) : '';
