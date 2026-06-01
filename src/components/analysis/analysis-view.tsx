@@ -114,12 +114,22 @@ function AnalysisProgress() {
 /** 去除 Markdown 标记，仅保留纯文本 */
 function stripMarkdown(text: string): string {
   return text
-    .replace(/^#{1,6}\s+?/gm, '')   // 标题 (### )
+    .replace(/^#{1,6}\s+/gm, '')     // 标题 (###, ##, #)
+    .replace(/^#{1,6}\s*$/gm, '')     // 纯标题行（无后续文字）
+    .replace(/\*\*\*(.+?)\*\*\*/g, '$1') // 粗斜体
     .replace(/\*\*(.+?)\*\*/g, '$1')  // 加粗
     .replace(/\*(.+?)\*/g, '$1')      // 斜体
+    .replace(/__(.+?)__/g, '$1')      // 下划线/加粗
+    .replace(/_(.+?)_/g, '$1')        // 下划线/斜体
+    .replace(/~~(.+?)~~/g, '$1')      // 删除线
     .replace(/```[\s\S]*?```/g, '')   // 代码块
     .replace(/`(.+?)`/g, '$1')        // 行内代码
     .replace(/^[\s]*[-*+]\s+/gm, '• ') // 列表
+    .replace(/^[\s]*>\s+/gm, '')      // 引用
+    .replace(/^---+$/gm, '')          // 分隔线
+    .replace(/^___+$/gm, '')          // 分隔线
+    .replace(/\[(.+?)\]\(.+?\)/g, '$1') // 链接
+    .replace(/!\[.*?\]\(.+?\)/g, '')  // 图片
     .replace(/\n{3,}/g, '\n\n')        // 多空行
     .trim();
 }
@@ -135,24 +145,12 @@ function DetectivePanel({ detective }: { detective: DetectiveReasoning }) {
   const [viewMode, setViewMode] = useState<'timeline' | 'mindmap'>('mindmap');
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // 流式文本自动滚动 — MutationObserver 监听 DOM 变化，比 useEffect 更可靠
-  useEffect(() => {
+  // 流式文本自动滚动 — 每次文本变化都滚动到底部
+  useLayoutEffect(() => {
     const el = scrollRef.current;
-    if (!el || detective.status !== 'streaming') return;
-
-    const scrollToBottom = () => {
-      el.scrollTop = el.scrollHeight;
-    };
-
-    // 首次滚动
-    scrollToBottom();
-
-    // 监听子节点变化（文字内容更新）
-    const observer = new MutationObserver(scrollToBottom);
-    observer.observe(el, { childList: true, characterData: true, subtree: true });
-
-    return () => observer.disconnect();
-  }, [detective.status]);
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+  }, [detective.fullText]);
 
   // 去除 Markdown 的纯文本用于实时显示
   const displayText = hasFullText ? stripMarkdown(detective.fullText) : '';
