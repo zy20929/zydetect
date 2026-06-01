@@ -1,9 +1,9 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useAnalysisStore } from '@/store/analysis-store';
 import { useI18n } from '@/i18n/context';
-import { Upload, X, Image as ImageIcon, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Upload, X, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
 
 /** 压缩图片：最大 1200px，JPEG 质量 0.8，确保 base64 不超过 ~800KB */
 function compressImage(file: File): Promise<string> {
@@ -37,30 +37,31 @@ export default function ImageUpload() {
   const [isDragging, setIsDragging] = useState(false);
   const [previewIndex, setPreviewIndex] = useState(0);
   const { imageDataUrls, imageFileName, setImage, addImage, removeImage } = useAnalysisStore();
+  const isFirstImage = useRef(true);
 
   const handleFile = useCallback(
     async (file: File) => {
       if (!file.type.startsWith('image/')) return;
       const dataUrl = await compressImage(file);
-      if (imageDataUrls.length === 0) {
+      if (isFirstImage.current) {
+        isFirstImage.current = false;
         setImage(dataUrl, file.name);
       } else {
         addImage(dataUrl);
       }
     },
-    [setImage, addImage, imageDataUrls.length],
+    [setImage, addImage],
   );
 
   const handleDrop = useCallback(
-    (e: React.DragEvent) => {
+    async (e: React.DragEvent) => {
       e.preventDefault();
       setIsDragging(false);
       const files = Array.from(e.dataTransfer.files);
-      files.forEach((file) => {
-        if (file.type.startsWith('image/')) {
-          handleFile(file);
-        }
-      });
+      const imageFiles = files.filter((file) => file.type.startsWith('image/'));
+      for (const file of imageFiles) {
+        await handleFile(file);
+      }
     },
     [handleFile],
   );
@@ -68,15 +69,21 @@ export default function ImageUpload() {
   const handleClear = useCallback(() => {
     setImage('', '');
     setPreviewIndex(0);
+    isFirstImage.current = true;
   }, [setImage]);
 
   const handleRemoveImage = useCallback(
     (index: number, e: React.MouseEvent) => {
       e.stopPropagation();
-      removeImage(index);
-      if (previewIndex >= imageDataUrls.length - 1) {
-        setPreviewIndex(Math.max(0, imageDataUrls.length - 2));
+      const remaining = imageDataUrls.length - 1;
+      if (remaining === 0) {
+        isFirstImage.current = true;
       }
+      const newPreviewIndex = remaining === 0
+        ? 0
+        : Math.min(previewIndex, remaining - 1);
+      removeImage(index);
+      setPreviewIndex(newPreviewIndex);
     },
     [removeImage, previewIndex, imageDataUrls.length],
   );
@@ -100,7 +107,7 @@ export default function ImageUpload() {
           <div className="relative">
             <img
               src={currentImage}
-              alt={`${imageFileName} - ${previewIndex + 1}`}
+              alt={`Image ${previewIndex + 1}`}
               className="w-full max-h-96 object-contain rounded"
             />
             {showNavigation && (
@@ -132,17 +139,17 @@ export default function ImageUpload() {
             )}
           </div>
           <div className="flex items-center justify-between mt-2 px-2 pb-1">
-            <div className="flex items-center gap-2 text-sm text-[var(--gold-dim)]">
+            <div className="flex items-center gap-2 text-sm text-[var(--gold-dim)] min-w-0">
               <FileText size={14} />
-              <span className="truncate">{imageFileName}</span>
+              <span className="truncate flex-1">{imageFileName}</span>
               {showNavigation && (
-                <span className="text-xs text-[var(--foreground)]/40">
+                <span className="text-xs text-[var(--foreground)]/40 shrink-0">
                   ({previewIndex + 1}/{imageDataUrls.length})
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-1">
-              {showNavigation && (
+            <div className="flex items-center gap-1 shrink-0">
+              {imageDataUrls.length > 1 && (
                 <button
                   onClick={(e) => handleRemoveImage(previewIndex, e)}
                   className="p-1.5 bg-black/60 text-red-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-300"
@@ -154,6 +161,7 @@ export default function ImageUpload() {
               <button
                 onClick={handleClear}
                 className="p-1.5 bg-black/60 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                title={t('upload.clearAll')}
               >
                 <X size={16} />
               </button>
@@ -186,9 +194,11 @@ export default function ImageUpload() {
         accept="image/*"
         multiple
         className="hidden"
-        onChange={(e) => {
+        onChange={async (e) => {
           const files = Array.from(e.target.files || []);
-          files.forEach((file) => handleFile(file));
+          for (const file of files) {
+            await handleFile(file);
+          }
         }}
       />
       <Upload className="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-[var(--gold-dim)]" />

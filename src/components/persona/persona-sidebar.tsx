@@ -6,7 +6,6 @@ import { useAnalysisStore } from '@/store/analysis-store';
 import { useI18n } from '@/i18n/context';
 import { Check, Users, User, Search, Loader2, Sparkles, ChevronDown, Eye, HelpCircle, Brain, CheckCircle, Star } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import CostEstimate from '@/components/analysis/cost-estimate';
 import FavoritesManager from './favorites-manager';
 
 /** 侦探分类 */
@@ -325,11 +324,6 @@ export default function PersonaSidebar({
             </>
           )}
         </button>
-
-        {/* 成本估算 */}
-        {selectedPersonas.length > 0 && (
-          <CostEstimate detectiveCount={selectedPersonas.length} mode={mode} />
-        )}
 
         {/* 收藏管理 */}
         <FavoritesManager />
