@@ -4,9 +4,8 @@ import { DetectiveId, StepType } from '@/lib/types';
 import { DETECTIVE_PERSONAS } from '@/lib/constants';
 import { useAnalysisStore } from '@/store/analysis-store';
 import { useI18n } from '@/i18n/context';
-import { Check, Users, User, Search, Loader2, Sparkles, ChevronDown, Eye, HelpCircle, Brain, CheckCircle, Star } from 'lucide-react';
+import { Check, Users, User, Search, Loader2, Sparkles, ChevronDown, Eye, HelpCircle, Brain, CheckCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import FavoritesManager from './favorites-manager';
 import { useToast } from '@/components/layout/toast';
 
 /** 侦探分类 */
@@ -187,7 +186,7 @@ export default function PersonaSidebar({
   canStart: boolean;
   isAnalyzing: boolean;
 }) {
-  const { selectedPersonas, mode, setPersonas, setMode, favorites } = useAnalysisStore();
+  const { selectedPersonas, mode, setPersonas, setMode } = useAnalysisStore();
   const { t } = useI18n();
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -332,9 +331,6 @@ export default function PersonaSidebar({
           )}
         </button>
 
-        {/* 收藏管理 */}
-        <FavoritesManager />
-
         {/* 分隔线 */}
         <div className="border-t border-b-[var(--card-border)]" />
 
@@ -353,7 +349,7 @@ export default function PersonaSidebar({
           {!searchQuery && activeCategory === 'all' && (
             <div className="space-y-1.5">
               <div className="flex items-center gap-1 text-xs text-[var(--gold)]/60">
-                <Star size={12} />
+                <Sparkles size={12} />
                 <span>{t('detectiveList.recommended')}</span>
               </div>
               <div className="grid grid-cols-2 gap-1.5">

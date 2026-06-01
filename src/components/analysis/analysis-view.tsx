@@ -15,7 +15,6 @@ import KnowledgePanel from './knowledge-panel';
 import ReasoningTimeline from './reasoning-timeline';
 import ReasoningMindMap from './reasoning-mindmap';
 import ReasoningProgressIndicator from './reasoning-progress-indicator';
-import TypewriterText from './typewriter-text';
 import ChatWindow from './chat-window';
 import AnalysisDisclaimer from './disclaimer';
 import DetectiveDuel from './detective-duel';
@@ -153,7 +152,7 @@ function DetectivePanel({ detective }: { detective: DetectiveReasoning }) {
             <span className="text-xs font-medium">{t('analysis.liveReasoning')}</span>
           </div>
           <div className="text-sm text-[var(--foreground)]/70 leading-relaxed whitespace-pre-wrap max-h-[200px] overflow-y-auto pr-1 scrollbar-thin">
-            <TypewriterText text={detective.fullText} speed={15} />
+            {detective.fullText}
             <span className="inline-block w-2 h-4 bg-[var(--gold)] animate-pulse ml-0.5" />
           </div>
         </div>

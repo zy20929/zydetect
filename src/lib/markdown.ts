@@ -17,9 +17,6 @@ export function generateReport(detectiveId: DetectiveId, fullText: string): stri
 ---
 
 ${fullText}
-
----
-*由 Detective AI Analyzer 生成*
 `;
 }
 
@@ -53,6 +50,5 @@ export function generateMultiDetectiveReport(
     report += `---\n\n`;
   }
 
-  report += `\n*由 Detective AI Analyzer 生成*\n`;
   return report;
 }
