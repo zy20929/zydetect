@@ -347,7 +347,7 @@ export default function PersonaSidebar({
         </div>
 
         {/* 侦探卡片列表 */}
-        <div className="space-y-1.5 max-h-[40vh] overflow-y-auto pr-1 sidebar-scroll">
+        <div className="space-y-1.5 max-h-[30vh] sm:max-h-[40vh] overflow-y-auto pr-1 sidebar-scroll">
           {/* 推荐区域 */}
           {!searchQuery && activeCategory === 'all' && (
             <div className="space-y-1.5">

@@ -66,7 +66,7 @@ function AnalysisProgress() {
   ];
 
   return (
-    <div className="flex items-center gap-3 py-2 px-1">
+    <div className="analysis-progress flex items-center gap-2 sm:gap-3 py-2 px-1 flex-wrap">
       {phases.map((phase, i) => (
         <div key={i} className="flex items-center gap-1.5">
           <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${
@@ -74,7 +74,7 @@ function AnalysisProgress() {
           }`}>
             {phase.done ? <Check size={10} /> : i + 1}
           </div>
-          <span className={`text-[11px] ${phase.done ? 'text-[var(--gold)]' : 'text-[var(--foreground)]/30'}`}>
+          <span className={`text-[11px] hidden sm:inline ${phase.done ? 'text-[var(--gold)]' : 'text-[var(--foreground)]/30'}`}>
             {phase.label}
           </span>
           {i < phases.length - 1 && <div className={`w-4 h-px ${phase.done ? 'bg-[var(--gold)]/50' : 'bg-[var(--card-border)]'}`} />}
@@ -429,11 +429,11 @@ export default function AnalysisView() {
               <span className="text-xs font-medium">{t('report.title')}</span>
             </div>
             <div className="rounded-xl border border-[var(--card-border)] overflow-hidden">
-              <div className="p-3 bg-[var(--card-accent)]/30 border-b-[var(--card-border)] flex items-center justify-between">
-                <h2 className="font-bold text-[var(--gold)] text-sm">{t('analysis.report')}</h2>
-                <div className="flex items-center gap-2">
+              <div className="p-2 sm:p-3 bg-[var(--card-accent)]/30 border-b-[var(--card-border)] flex flex-wrap items-center gap-1.5 sm:gap-2 justify-between">
+                <h2 className="font-bold text-[var(--gold)] text-xs sm:text-sm">{t('analysis.report')}</h2>
+                <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
                   {/* 字体大小调节 */}
-                  <div className="flex items-center gap-1 mr-2">
+                  <div className="flex items-center gap-0.5 sm:gap-1">
                     <button
                       onClick={() => setFontSize(Math.max(10, fontSize - 2))}
                       className="p-1 rounded text-[var(--foreground)]/40 hover:text-[var(--foreground)]/60 transition-colors"
@@ -452,33 +452,33 @@ export default function AnalysisView() {
                   </div>
                   <button
                     onClick={handleShare}
-                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-lg border-[var(--card-border)] hover:bg-[var(--card-bg)] transition-colors text-[var(--foreground)]/70"
+                    className="flex items-center gap-1 px-1.5 sm:px-2 py-1 text-[10px] sm:text-xs font-medium rounded-lg border-[var(--card-border)] hover:bg-[var(--card-bg)] transition-colors text-[var(--foreground)]/70"
                     title={t('report.share')}
                   >
                     <Share2 size={12} />
-                    {t('report.share')}
+                    <span className="hidden sm:inline">{t('report.share')}</span>
                   </button>
                   <button
                     onClick={handleExportImage}
-                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-lg border-[var(--card-border)] hover:bg-[var(--card-bg)] transition-colors text-[var(--foreground)]/70"
+                    className="flex items-center gap-1 px-1.5 sm:px-2 py-1 text-[10px] sm:text-xs font-medium rounded-lg border-[var(--card-border)] hover:bg-[var(--card-bg)] transition-colors text-[var(--foreground)]/70"
                     title={t('report.exportImage')}
                   >
                     <ImageIcon size={12} />
-                    {t('report.exportImage')}
+                    <span className="hidden sm:inline">{t('report.exportImage')}</span>
                   </button>
                   <button
                     onClick={handleCopy}
-                    className="flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-lg border-[var(--card-border)] hover:bg-[var(--card-bg)] transition-colors text-[var(--foreground)]/70"
+                    className="flex items-center gap-1 px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-medium rounded-lg border-[var(--card-border)] hover:bg-[var(--card-bg)] transition-colors text-[var(--foreground)]/70"
                   >
                     {copied ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
-                    {copied ? t('report.copied') : t('report.copy')}
+                    <span className="hidden sm:inline">{copied ? t('report.copied') : t('report.copy')}</span>
                   </button>
                   <button
                     onClick={handleDownload}
-                    className="flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-lg bg-[var(--gold)] text-[var(--card-alt)] hover:bg-[var(--gold-dim)] transition-colors"
+                    className="flex items-center gap-1 px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-medium rounded-lg bg-[var(--gold)] text-[var(--card-alt)] hover:bg-[var(--gold-dim)] transition-colors"
                   >
                     <Download size={12} />
-                    {t('report.exportMD')}
+                    <span className="hidden sm:inline">{t('report.exportMD')}</span>
                   </button>
                 </div>
               </div>

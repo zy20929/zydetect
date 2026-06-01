@@ -18,6 +18,11 @@ export const metadata: Metadata = {
     template: '%s | 鉴微侦探',
   },
   description: 'Upload an image and let master detectives analyze geography, environment, psychology, and predictions with unique推理 perspectives',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+  },
 };
 
 export default async function RootLayout({

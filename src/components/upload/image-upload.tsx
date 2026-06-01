@@ -5,6 +5,33 @@ import { useAnalysisStore } from '@/store/analysis-store';
 import { useI18n } from '@/i18n/context';
 import { Upload, X, Image as ImageIcon, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
 
+/** 压缩图片：最大 1200px，JPEG 质量 0.8，确保 base64 不超过 ~800KB */
+function compressImage(file: File): Promise<string> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let { width, height } = img;
+        const MAX = 1200;
+        if (width > MAX || height > MAX) {
+          const ratio = Math.min(MAX / width, MAX / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function ImageUpload() {
   const { t } = useI18n();
   const [isDragging, setIsDragging] = useState(false);
@@ -12,18 +39,14 @@ export default function ImageUpload() {
   const { imageDataUrls, imageFileName, setImage, addImage, removeImage } = useAnalysisStore();
 
   const handleFile = useCallback(
-    (file: File) => {
+    async (file: File) => {
       if (!file.type.startsWith('image/')) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUrl = e.target?.result as string;
-        if (imageDataUrls.length === 0) {
-          setImage(dataUrl, file.name);
-        } else {
-          addImage(dataUrl);
-        }
-      };
-      reader.readAsDataURL(file);
+      const dataUrl = await compressImage(file);
+      if (imageDataUrls.length === 0) {
+        setImage(dataUrl, file.name);
+      } else {
+        addImage(dataUrl);
+      }
     },
     [setImage, addImage, imageDataUrls.length],
   );
@@ -150,7 +173,7 @@ export default function ImageUpload() {
       onDragLeave={() => setIsDragging(false)}
       onDrop={handleDrop}
       className={`
-        border-2 border-dashed rounded-xl p-12 text-center transition-all cursor-pointer detective-card
+        border-2 border-dashed rounded-xl p-6 sm:p-8 md:p-12 text-center transition-all cursor-pointer detective-card
         ${isDragging
           ? 'border-[var(--gold)] bg-[var(--card-bg)] shadow-lg shadow-[var(--gold)]/10'
           : 'border-[var(--card-border)] hover:border-[var(--gold)]/50 bg-[var(--card-bg)]/50'}
@@ -168,10 +191,10 @@ export default function ImageUpload() {
           files.forEach((file) => handleFile(file));
         }}
       />
-      <Upload className="mx-auto h-12 w-12 text-[var(--gold-dim)]" />
-      <p className="mt-4 text-lg font-medium text-[var(--foreground)]">{t('home.uploadPlaceholder')}</p>
-      <p className="mt-1 text-sm text-[var(--foreground)]/50">{t('home.uploadHint')}</p>
-      <p className="mt-2 text-xs text-[var(--gold)]/50">{t('home.uploadMultiHint')}</p>
+      <Upload className="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-[var(--gold-dim)]" />
+      <p className="mt-3 sm:mt-4 text-base sm:text-lg font-medium text-[var(--foreground)]">{t('home.uploadPlaceholder')}</p>
+      <p className="mt-1 text-xs sm:text-sm text-[var(--foreground)]/50">{t('home.uploadHint')}</p>
+      <p className="mt-1 sm:mt-2 text-[10px] sm:text-xs text-[var(--gold)]/50">{t('home.uploadMultiHint')}</p>
     </div>
   );
 }

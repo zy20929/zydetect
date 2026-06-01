@@ -264,3 +264,18 @@ body {
     grid-column: span 2 / span 2;
   }
 }
+
+/* 移动端优化 */
+@media (max-width: 640px) {
+  /* 防止横向溢出 */
+  .prose {
+    overflow-x: hidden;
+  }
+  .prose img, .prose table {
+    max-width: 100%;
+  }
+  /* 分析进度指示器 — 移动端堆叠 */
+  .analysis-progress {
+    flex-wrap: wrap;
+  }
+}
