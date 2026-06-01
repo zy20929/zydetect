@@ -9,10 +9,11 @@ interface Toast {
   id: string;
   message: string;
   type: ToastType;
+  position?: 'bottom-right' | 'center';
 }
 
 interface ToastContextValue {
-  toast: (message: string, type?: ToastType) => void;
+  toast: (message: string, type?: ToastType, position?: 'bottom-right' | 'center') => void;
 }
 
 const ToastContext = createContext<ToastContextValue>({ toast: () => {} });
@@ -20,9 +21,9 @@ const ToastContext = createContext<ToastContextValue>({ toast: () => {} });
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const toast = useCallback((message: string, type: ToastType = 'info') => {
+  const toast = useCallback((message: string, type: ToastType = 'info', position: 'bottom-right' | 'center' = 'bottom-right') => {
     const id = Date.now().toString() + Math.random().toString(36).slice(2, 6);
-    setToasts((prev) => [...prev, { id, message, type }]);
+    setToasts((prev) => [...prev, { id, message, type, position }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 3000);
@@ -35,8 +36,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ toast }}>
       {children}
+      {/* 右下角 Toast */}
       <div className="fixed bottom-4 right-4 z-50 space-y-2 pointer-events-none">
-        {toasts.map((t) => (
+        {toasts.filter((t) => t.position !== 'center').map((t) => (
           <div
             key={t.id}
             className={`
@@ -54,6 +56,24 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <button onClick={() => dismiss(t.id)} className="text-current opacity-50 hover:opacity-100 shrink-0">
               <X size={14} />
             </button>
+          </div>
+        ))}
+      </div>
+      {/* 居中 Toast */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+        {toasts.filter((t) => t.position === 'center').map((t) => (
+          <div
+            key={t.id}
+            className={`
+              pointer-events-auto flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl
+              border backdrop-blur-md animate-fade-in min-w-[280px] max-w-[420px]
+              ${t.type === 'success' ? 'bg-emerald-950/90 border-emerald-500/30 text-emerald-200' : ''}
+              ${t.type === 'error' ? 'bg-red-950/90 border-red-500/30 text-red-200' : ''}
+              ${t.type === 'info' ? 'bg-[var(--card-bg)]/95 border-[var(--gold)]/50 text-[var(--foreground)]' : ''}
+            `}
+          >
+            {t.type === 'info' && <Info size={20} className="text-[var(--gold)] shrink-0" />}
+            <span className="text-base font-medium flex-1 text-center">{t.message}</span>
           </div>
         ))}
       </div>

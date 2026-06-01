@@ -210,7 +210,7 @@ export default function PersonaSidebar({
         setPersonas([id]);
       } else {
         if (selectedPersonas.length >= 3) {
-          toast(t('home.maxDetectives'), 'info');
+          toast(t('home.maxDetectives'), 'info', 'center');
           return;
         }
         setPersonas([...selectedPersonas, id]);
