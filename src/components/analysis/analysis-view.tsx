@@ -10,7 +10,7 @@ import rehypeSanitize from 'rehype-sanitize';
 import { remarkHighlightTags } from '@/lib/remark-highlight-tags';
 import { useAnalysisStore } from '@/store/analysis-store';
 import { useAnalysis } from '@/hooks/use-analysis';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/components/layout/toast';
 import KnowledgePanel from './knowledge-panel';
 import ReasoningTimeline from './reasoning-timeline';
@@ -111,6 +111,19 @@ function AnalysisProgress() {
   );
 }
 
+/** 去除 Markdown 标记，仅保留纯文本 */
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/#{1,6}\s/g, '')          // 标题
+    .replace(/\*\*(.+?)\*\*/g, '$1')    // 加粗
+    .replace(/\*(.+?)\*/g, '$1')        // 斜体
+    .replace(/`{3}[\s\S]*?`{3}/g, '')   // 代码块
+    .replace(/`(.+?)`/g, '$1')          // 行内代码
+    .replace(/^\s*[-*+]\s/gm, '• ')     // 列表
+    .replace(/\n{3,}/g, '\n\n')         // 多空行
+    .trim();
+}
+
 /** 单个侦探推理面板 */
 function DetectivePanel({ detective }: { detective: DetectiveReasoning }) {
   const { t } = useI18n();
@@ -120,6 +133,17 @@ function DetectivePanel({ detective }: { detective: DetectiveReasoning }) {
   const hasSteps = detective.steps.length > 0;
   const hasFullText = detective.fullText.length > 0;
   const [viewMode, setViewMode] = useState<'timeline' | 'mindmap'>('mindmap');
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // 流式文本自动滚动到底部
+  useEffect(() => {
+    if (detective.status === 'streaming' && scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [detective.fullText, detective.status]);
+
+  // 去除 Markdown 的纯文本用于实时显示
+  const displayText = hasFullText ? stripMarkdown(detective.fullText) : '';
 
   return (
     <div className="rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] overflow-hidden animate-fade-in flex flex-col">
@@ -145,15 +169,18 @@ function DetectivePanel({ detective }: { detective: DetectiveReasoning }) {
         </div>
       </div>
 
-      {/* 实时推理文字流（流式显示，优先于时间线） */}
-      {detective.status === 'streaming' && hasFullText && (
+      {/* 实时推理文字流（流式显示，纯文本，自动滚动） */}
+      {detective.status === 'streaming' && displayText && (
         <div className="p-3 border-b-[var(--card-border)]">
           <div className="flex items-center gap-1.5 mb-2 text-[var(--gold)]/60">
             <Brain size={12} />
             <span className="text-xs font-medium">{t('analysis.liveReasoning')}</span>
           </div>
-          <div className="text-sm text-[var(--foreground)]/70 leading-relaxed whitespace-pre-wrap max-h-[200px] overflow-y-auto pr-1 scrollbar-thin">
-            {detective.fullText}
+          <div
+            ref={scrollRef}
+            className="text-sm text-[var(--foreground)]/70 leading-relaxed whitespace-pre-wrap max-h-[200px] overflow-y-auto pr-1 scrollbar-thin"
+          >
+            {displayText}
             <span className="inline-block w-2 h-4 bg-[var(--gold)] animate-pulse ml-0.5" />
           </div>
         </div>
