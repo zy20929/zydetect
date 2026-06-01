@@ -58,7 +58,22 @@
       "Bash(curl -s --connect-timeout 5 -x http://127.0.0.1:7892 https://api.github.com/user)",
       "Bash(git *)",
       "Bash(curl -sI https://zydetect.pages.dev)",
-      "Bash(curl -v https://zydetect.pages.dev)"
+      "Bash(curl -v https://zydetect.pages.dev)",
+      "Bash(npx opennextjs-cloudflare *)",
+      "Bash(npx wrangler *)",
+      "Bash(wrangler whoami *)",
+      "Bash(curl -s \"https://api.cloudflare.com/client/v4/accounts/238b678aa4cec2d2a586914696e1357f/pages/projects\" -H \"Authorization: Bearer $\\(npx wrangler -- --list-secrets 2>&1\\)\")",
+      "Read(//c/Users/X/.config/**)",
+      "Read(//c/Users/X/**)",
+      "Bash(curl -s -X PATCH https://api.cloudflare.com/client/v4/accounts/238b678aa4cec2d2a586914696e1357f/pages/projects/zydetect -H 'Authorization: Bearer thQnY942OozFMi92PzYuo-4_phrvbKi6zuMHuDtI_DY.6vx47QnWWAGNbEGAVhAzh8mBHg7Vsa0o2969vop9Q7w' -H 'Content-Type: application/json' -d '{\"source\":{\"type\":\"github\",\"config\":{\"owner\":\"zy20929\",\"repo_name\":\"zydetect\",\"production_branch\":\"main\",\"deployments_enabled\":true,\"build_config\":{\"build_command\":\"npx opennextjs-cloudflare build --skipWranglerConfigCheck\",\"destination_dir\":\".open-next\"}}}}')",
+      "Bash(curl -s -X POST https://api.cloudflare.com/client/v4/accounts/238b678aa4cec2d2a586914696e1357f/pages/projects -H 'Authorization: Bearer thQnY942OozFMi92PzYuo-4_phrvbKi6zuMHuDtI_DY.6vx47QnWWAGNbEGAVhAzh8mBHg7Vsa0o2969vop9Q7w' -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(curl -s -X PATCH https://api.cloudflare.com/client/v4/accounts/238b678aa4cec2d2a586914696e1357f/pages/projects/zydetect -H 'Authorization: Bearer thQnY942OozFMi92PzYuo-4_phrvbKi6zuMHuDtI_DY.6vx47QnWWAGNbEGAVhAzh8mBHg7Vsa0o2969vop9Q7w' -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(curl -s https://api.cloudflare.com/client/v4/accounts/238b678aa4cec2d2a586914696e1357f/pages/projects/zydetect/deployments?per_page=5 -H 'Authorization: Bearer thQnY942OozFMi92PzYuo-4_phrvbKi6zuMHuDtI_DY.6vx47QnWWAGNbEGAVhAzh8mBHg7Vsa0o2969vop9Q7w')",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl *)",
+      "Bash(python3 -c ' *)",
+      "Bash(zip -r /tmp/zydetect-deploy.zip . -x \"*.DS_Store\")",
+      "Bash(tar czf *)"
     ]
   }
 }
