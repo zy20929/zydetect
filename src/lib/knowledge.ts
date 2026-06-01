@@ -191,9 +191,12 @@ export async function gatherKnowledge(
     onKeywords?: (keywords: string[]) => void;
     onSearching?: (source: string, query: string) => void;
   },
+  preKeywords?: string[],
 ): Promise<KnowledgeItem[]> {
-  // 阶段 1: 提取关键词
-  const keywords = await extractKeywords(imageBase64);
+  // 阶段 1: 提取关键词（如果已提供则跳过 Claude 调用）
+  const keywords = preKeywords?.length
+    ? preKeywords
+    : await extractKeywords(imageBase64);
   callbacks?.onKeywords?.(keywords);
 
   // 阶段 2: 并行搜索多个来源

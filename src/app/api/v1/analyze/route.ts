@@ -127,6 +127,11 @@ export async function POST(request: NextRequest) {
       async start(controller) {
         const enqueue = (data: unknown) => controller.enqueue(sse(data));
 
+        // SSE 保活：每 15 秒发送注释行防止连接被中断
+        const keepaliveId = setInterval(() => {
+          try { controller.enqueue(': keepalive\n\n'); } catch {}
+        }, 15000);
+
         // 阶段 0: 检测 AI 模型可用性
         const aiAvailable = await checkModelAvailability();
         enqueue({ type: 'model_check', available: aiAvailable });
@@ -155,20 +160,21 @@ export async function POST(request: NextRequest) {
           const report = generateKnowledgeOnlyReport(personas, allEntries, mode);
           enqueue({ type: 'report', content: report });
           enqueue({ type: 'done' });
+          clearInterval(keepaliveId);
           controller.close();
           return;
         }
 
         // ========== AI 可用：正常流程 ==========
 
-        // 阶段 1: 知识检索（限时 10 秒，超时跳过）
+        // 阶段 1: 知识检索（限时 5 秒，超时跳过）
         enqueue({ type: 'knowledge_start' });
 
         let keywords: string[] = [];
         let externalKnowledge: Awaited<ReturnType<typeof gatherKnowledge>> = [];
 
         try {
-          const knowledgeTimeout = 10000;
+          const knowledgeTimeout = 5000;
           externalKnowledge = await Promise.race([
             gatherKnowledge(images[0], {
               onKeywords: (kws) => {
@@ -214,6 +220,7 @@ export async function POST(request: NextRequest) {
         }
 
         enqueue({ type: 'done' });
+        clearInterval(keepaliveId);
         controller.close();
       },
     });
