@@ -68,6 +68,7 @@ export interface DetectiveReasoning {
   fullText: string;
   status: 'pending' | 'streaming' | 'complete' | 'error';
   errorMessage?: string;
+  _tick?: number; // 用于强制 React 检测变化
 }
 
 export interface AnalysisResult {

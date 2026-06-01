@@ -10,7 +10,7 @@ import rehypeSanitize from 'rehype-sanitize';
 import { remarkHighlightTags } from '@/lib/remark-highlight-tags';
 import { useAnalysisStore } from '@/store/analysis-store';
 import { useAnalysis } from '@/hooks/use-analysis';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { useToast } from '@/components/layout/toast';
 import KnowledgePanel from './knowledge-panel';
 import ReasoningTimeline from './reasoning-timeline';
@@ -114,13 +114,13 @@ function AnalysisProgress() {
 /** 去除 Markdown 标记，仅保留纯文本 */
 function stripMarkdown(text: string): string {
   return text
-    .replace(/#{1,6}\s/g, '')          // 标题
-    .replace(/\*\*(.+?)\*\*/g, '$1')    // 加粗
-    .replace(/\*(.+?)\*/g, '$1')        // 斜体
-    .replace(/`{3}[\s\S]*?`{3}/g, '')   // 代码块
-    .replace(/`(.+?)`/g, '$1')          // 行内代码
-    .replace(/^\s*[-*+]\s/gm, '• ')     // 列表
-    .replace(/\n{3,}/g, '\n\n')         // 多空行
+    .replace(/^#{1,6}\s+?/gm, '')   // 标题 (### )
+    .replace(/\*\*(.+?)\*\*/g, '$1')  // 加粗
+    .replace(/\*(.+?)\*/g, '$1')      // 斜体
+    .replace(/```[\s\S]*?```/g, '')   // 代码块
+    .replace(/`(.+?)`/g, '$1')        // 行内代码
+    .replace(/^[\s]*[-*+]\s+/gm, '• ') // 列表
+    .replace(/\n{3,}/g, '\n\n')        // 多空行
     .trim();
 }
 
@@ -135,12 +135,24 @@ function DetectivePanel({ detective }: { detective: DetectiveReasoning }) {
   const [viewMode, setViewMode] = useState<'timeline' | 'mindmap'>('mindmap');
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // 流式文本自动滚动到底部
+  // 流式文本自动滚动 — MutationObserver 监听 DOM 变化，比 useEffect 更可靠
   useEffect(() => {
-    if (detective.status === 'streaming' && scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [detective.fullText, detective.status]);
+    const el = scrollRef.current;
+    if (!el || detective.status !== 'streaming') return;
+
+    const scrollToBottom = () => {
+      el.scrollTop = el.scrollHeight;
+    };
+
+    // 首次滚动
+    scrollToBottom();
+
+    // 监听子节点变化（文字内容更新）
+    const observer = new MutationObserver(scrollToBottom);
+    observer.observe(el, { childList: true, characterData: true, subtree: true });
+
+    return () => observer.disconnect();
+  }, [detective.status]);
 
   // 去除 Markdown 的纯文本用于实时显示
   const displayText = hasFullText ? stripMarkdown(detective.fullText) : '';

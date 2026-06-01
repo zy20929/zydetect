@@ -238,7 +238,12 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
         case 'detective_delta':
           if (detectives[event.detectiveId]) {
             const d = detectives[event.detectiveId];
-            detectives[event.detectiveId] = { ...d, fullText: event.fullText };
+            detectives[event.detectiveId] = {
+              ...d,
+              fullText: event.fullText,
+              // 每次更新都创建新对象引用，确保 React 能检测到变化
+              _tick: Date.now(),
+            };
           }
           return { detectives };
 
