@@ -10,7 +10,7 @@ import rehypeSanitize from 'rehype-sanitize';
 import { remarkHighlightTags } from '@/lib/remark-highlight-tags';
 import { useAnalysisStore } from '@/store/analysis-store';
 import { useAnalysis } from '@/hooks/use-analysis';
-import { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/components/layout/toast';
 import KnowledgePanel from './knowledge-panel';
 import ReasoningTimeline from './reasoning-timeline';
@@ -145,11 +145,21 @@ function DetectivePanel({ detective }: { detective: DetectiveReasoning }) {
   const [viewMode, setViewMode] = useState<'timeline' | 'mindmap'>('mindmap');
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // 流式文本自动滚动 — 每次文本变化都滚动到底部
-  useLayoutEffect(() => {
+  // 流式文本自动滚动 — 使用 useEffect + rAF 确保浏览器完成布局计算
+  useEffect(() => {
     const el = scrollRef.current;
-    if (!el) return;
-    el.scrollTop = el.scrollHeight;
+    if (!el) {
+      console.log('[auto-scroll] scrollRef is null');
+      return;
+    }
+    console.log('[auto-scroll] fullText length:', detective.fullText.length, 'scheduling scroll');
+    // 在 rAF 回调中读取 scrollHeight，确保 DOM 已更新且布局已计算
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        console.log('[auto-scroll] scrolling to:', el.scrollHeight);
+        el.scrollTop = el.scrollHeight;
+      });
+    });
   }, [detective.fullText]);
 
   // 去除 Markdown 的纯文本用于实时显示
