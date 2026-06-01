@@ -21,7 +21,7 @@ const ToastContext = createContext<ToastContextValue>({ toast: () => {} });
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const toast = useCallback((message: string, type: ToastType = 'info', position: 'bottom-right' | 'center' = 'bottom-right') => {
+  const toast = useCallback((message: string, type: ToastType = 'info', position: 'bottom-right' | 'center' = 'center') => {
     const id = Date.now().toString() + Math.random().toString(36).slice(2, 6);
     setToasts((prev) => [...prev, { id, message, type, position }]);
     setTimeout(() => {
