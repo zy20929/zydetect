@@ -63,20 +63,30 @@ export async function extractKeywords(
  * 搜索 Wikipedia
  * 调用 Wikipedia REST API 获取文章摘要
  */
+async function fetchWithTimeout(url: string, options: RequestInit, timeout: number): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export async function searchWikipedia(keywords: string[]): Promise<KnowledgeItem[]> {
   const items: KnowledgeItem[] = [];
 
-  for (const keyword of keywords.slice(0, 3)) {
+  for (const keyword of keywords.slice(0, 2)) {
     try {
       // Wikipedia REST API — 搜索
       const searchUrl = `https://zh.wikipedia.org/api/rest_v1/search/page?q=${encodeURIComponent(keyword)}&limit=1`;
 
-      const searchResp = await fetch(searchUrl, {
+      const searchResp = await fetchWithTimeout(searchUrl, {
         headers: {
           'User-Agent': 'DetectiveAI/1.0 (Knowledge Research Tool)',
           Accept: 'application/json',
         },
-      });
+      }, 5000);
 
       if (!searchResp.ok) continue;
 
@@ -87,11 +97,11 @@ export async function searchWikipedia(keywords: string[]): Promise<KnowledgeItem
 
         // 获取页面摘要
         const summaryUrl = `https://zh.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(page.title)}`;
-        const summaryResp = await fetch(summaryUrl, {
+        const summaryResp = await fetchWithTimeout(summaryUrl, {
           headers: {
             'User-Agent': 'DetectiveAI/1.0 (Knowledge Research Tool)',
           },
-        });
+        }, 5000);
 
         if (summaryResp.ok) {
           const summaryData = await summaryResp.json();
@@ -122,15 +132,15 @@ export async function searchWikipedia(keywords: string[]): Promise<KnowledgeItem
 export async function searchDuckDuckGo(keywords: string[]): Promise<KnowledgeItem[]> {
   const items: KnowledgeItem[] = [];
 
-  for (const keyword of keywords.slice(0, 3)) {
+  for (const keyword of keywords.slice(0, 2)) {
     try {
       const url = `https://api.duckduckgo.com/?q=${encodeURIComponent(keyword)}&format=json&no_html=1&skip_disambig=1`;
 
-      const resp = await fetch(url, {
+      const resp = await fetchWithTimeout(url, {
         headers: {
           'User-Agent': 'DetectiveAI/1.0',
         },
-      });
+      }, 5000);
 
       if (!resp.ok) continue;
 

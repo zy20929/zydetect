@@ -161,22 +161,28 @@ export async function POST(request: NextRequest) {
 
         // ========== AI 可用：正常流程 ==========
 
-        // 阶段 1: 知识检索
+        // 阶段 1: 知识检索（限时 10 秒，超时跳过）
         enqueue({ type: 'knowledge_start' });
 
         let keywords: string[] = [];
         let externalKnowledge: Awaited<ReturnType<typeof gatherKnowledge>> = [];
 
         try {
-          externalKnowledge = await gatherKnowledge(images[0], {
-            onKeywords: (kws) => {
-              keywords = kws;
-              enqueue({ type: 'knowledge_keyword_extracted', keywords: kws });
-            },
-            onSearching: (source, query) => {
-              enqueue({ type: 'knowledge_searching', source, query });
-            },
-          });
+          const knowledgeTimeout = 10000;
+          externalKnowledge = await Promise.race([
+            gatherKnowledge(images[0], {
+              onKeywords: (kws) => {
+                keywords = kws;
+                enqueue({ type: 'knowledge_keyword_extracted', keywords: kws });
+              },
+              onSearching: (source, query) => {
+                enqueue({ type: 'knowledge_searching', source, query });
+              },
+            }),
+            new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error('timeout')), knowledgeTimeout),
+            ),
+          ]);
         } catch {
           // 知识检索失败不影响后续流程
           enqueue({ type: 'error', message: '外部知识检索失败，将使用纯 AI 推理' });
