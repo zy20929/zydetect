@@ -76,6 +76,7 @@ interface AnalysisState {
   setPersonas: (personas: DetectiveId[]) => void;
   setMode: (mode: AnalysisMode) => void;
   startAnalysis: () => void;
+  cancelAnalysis: () => void;
   handleSSEEvent: (event: SSEEvent) => void;
   finishAnalysis: () => void;
   setError: (error: string | null) => void;
@@ -137,9 +138,9 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
   setPersonas: (personas) => set({ selectedPersonas: personas }),
   setMode: (mode) => {
     const currentMode = get().mode;
-    // 从组团切换为个人时，清空已选侦探
-    if (currentMode === 'group' && mode === 'solo') {
-      set({ mode, selectedPersonas: [] });
+    // 从组团切换为个人时，只保留第一个侦探
+    if (currentMode === 'group' && mode === 'solo' && get().selectedPersonas.length > 1) {
+      set({ mode, selectedPersonas: [get().selectedPersonas[0]] });
     } else {
       set({ mode });
     }
@@ -163,6 +164,19 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
       knowledgeState: { ...emptyKnowledgeState, isSearching: true },
     });
   },
+
+  /** 取消分析 — 重置为空闲状态 */
+  cancelAnalysis: () =>
+    set({
+      isAnalyzing: false,
+      isSynthesizing: false,
+      analysisStartTime: null,
+      detectives: {} as Record<DetectiveId, DetectiveReasoning>,
+      synthesisText: '',
+      finalReport: '',
+      error: null,
+      knowledgeState: emptyKnowledgeState,
+    }),
 
   /** 处理 SSE 事件 */
   handleSSEEvent: (event) =>

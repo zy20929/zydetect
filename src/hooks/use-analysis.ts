@@ -1,9 +1,12 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useAnalysisStore } from '@/store/analysis-store';
+import { useI18n } from '@/i18n/context';
 import { SSEEvent } from '@/lib/types';
 
 export function useAnalysis() {
   const store = useAnalysisStore();
+  const { locale } = useI18n();
+  const abortRef = useRef<AbortController | null>(null);
 
   const startAnalysis = useCallback(async () => {
     const { imageDataUrls, selectedPersonas, mode } = store;
@@ -16,9 +19,11 @@ export function useAnalysis() {
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       if (attempt > 0) {
-        // 等待后重试
         await new Promise(r => setTimeout(r, 2000));
       }
+
+      const controller = new AbortController();
+      abortRef.current = controller;
 
       try {
         const response = await fetch('/api/v1/analyze', {
@@ -28,7 +33,9 @@ export function useAnalysis() {
             images: imageDataUrls,
             personas: selectedPersonas,
             mode,
+            locale,
           }),
+          signal: controller.signal,
         });
 
         if (!response.ok) {
@@ -58,7 +65,6 @@ export function useAnalysis() {
                 }
                 if (event.type === 'done' || event.type === 'error') {
                   store.finishAnalysis();
-                  // 如果是 error 且还有重试次数，不返回
                   if (event.type === 'error' && attempt < maxRetries) {
                     lastError = event.message;
                     throw new Error(lastError);
@@ -69,22 +75,31 @@ export function useAnalysis() {
                 if (parseErr instanceof Error && parseErr.message === lastError) {
                   throw parseErr;
                 }
-                // 跳过格式不正确的事件
               }
             }
           }
         }
 
-        // 正常结束
         return;
       } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') {
+          return;
+        }
         lastError = err instanceof Error ? err.message : '分析请求失败';
         if (attempt >= maxRetries) {
           store.setError(lastError);
         }
       }
     }
+  }, [store, locale]);
+
+  const cancelAnalysis = useCallback(() => {
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+      store.cancelAnalysis();
+    }
   }, [store]);
 
-  return { startAnalysis };
+  return { startAnalysis, cancelAnalysis };
 }

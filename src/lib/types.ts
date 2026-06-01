@@ -40,7 +40,7 @@ export type AnalysisMode = 'solo' | 'group';
 
 export type StepType = 'observation' | 'question' | 'analysis' | 'conclusion';
 
-export type Locale = 'zh' | 'en' | 'ja' | 'ko';
+export type Locale = 'zh' | 'en';
 
 export interface DetectivePersona {
   id: DetectiveId;

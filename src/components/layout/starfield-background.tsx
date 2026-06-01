@@ -22,6 +22,9 @@ const DEPTH_LAYERS = [
   { count: 40,   speed: 0.15,  size: [1.8, 4.0], glow: 2 },
 ];
 
+/** 移动端星星数量比例 */
+const MOBILE_STAR_RATIO = 0.35;
+
 interface Star {
   x: number; y: number; z: number;
   size: number;
@@ -67,11 +70,13 @@ const CLUSTERS = [
   { cx: 0.85, cy: 0.6, r: 0.18 },
 ];
 
-function makeStars(w: number, h: number): Star[] {
+function makeStars(w: number, h: number, isMobile = false): Star[] {
   const out: Star[] = [];
+  const ratio = isMobile ? MOBILE_STAR_RATIO : 1;
   for (let z = 0; z < DEPTH_LAYERS.length; z++) {
     const L = DEPTH_LAYERS[z];
-    for (let i = 0; i < L.count; i++) {
+    const count = Math.round(L.count * ratio);
+    for (let i = 0; i < count; i++) {
       const c = pickColor();
       const cl = CLUSTERS[Math.floor(Math.random() * CLUSTERS.length)];
       const theta = Math.random() * Math.PI * 2;
@@ -103,9 +108,10 @@ function makeStars(w: number, h: number): Star[] {
   return out;
 }
 
-function makeCosmicDust(w: number, h: number): CosmicDust[] {
+function makeCosmicDust(w: number, h: number, isMobile = false): CosmicDust[] {
   const out: CosmicDust[] = [];
-  for (let i = 0; i < 200; i++) {
+  const count = isMobile ? Math.round(200 * MOBILE_STAR_RATIO) : 200;
+  for (let i = 0; i < count; i++) {
     out.push({
       x: Math.random() * w,
       y: Math.random() * h,
@@ -143,8 +149,8 @@ interface DustMote {
   phase: number;
 }
 
-function makeCaseBoard(w: number, h: number): { pins: CasePin[]; threads: CaseThread[] } {
-  const pinCount = 25 + Math.floor(Math.random() * 10);
+function makeCaseBoard(w: number, h: number, isMobile = false): { pins: CasePin[]; threads: CaseThread[] } {
+  const pinCount = isMobile ? 12 : 25 + Math.floor(Math.random() * 10);
   const pins: CasePin[] = [];
   const colors: CasePin['color'][] = ['red', 'yellow', 'blue'];
 
@@ -181,9 +187,10 @@ function makeCaseBoard(w: number, h: number): { pins: CasePin[]; threads: CaseTh
   return { pins, threads };
 }
 
-function makeDustMotes(w: number, h: number): DustMote[] {
+function makeDustMotes(w: number, h: number, isMobile = false): DustMote[] {
   const out: DustMote[] = [];
-  for (let i = 0; i < 60; i++) {
+  const count = isMobile ? 25 : 60;
+  for (let i = 0; i < count; i++) {
     out.push({
       x: Math.random() * w,
       y: Math.random() * h,
@@ -515,13 +522,21 @@ export default function StarfieldBackground() {
     const cw = rect.width * dpr;
     const ch = rect.height * dpr;
 
+    // Re-scale canvas if DPR changed (e.g. moving between displays)
+    if (canvas.width !== cw || canvas.height !== ch) {
+      canvas.width = cw;
+      canvas.height = ch;
+    }
+
     timeRef.current += 0.016;
     const t = timeRef.current;
 
     if (darkRef.current) {
+      ctx.save();
+      ctx.scale(dpr, dpr);
       renderDark(ctx, rect.width, rect.height, t);
+      ctx.restore();
     } else {
-      // 亮色模式：DPR 缩放 + 侦探案卷板
       ctx.save();
       ctx.scale(dpr, dpr);
       renderLight(ctx, rect.width, rect.height, t, mouseRef.current.x, mouseRef.current.y, caseBoardRef);
@@ -540,13 +555,14 @@ export default function StarfieldBackground() {
       const dpr = window.devicePixelRatio || 1;
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
+      const isMobile = rect.width < 768;
       if (darkRef.current) {
-        starsRef.current = makeStars(rect.width, rect.height);
-        dustRef.current = makeCosmicDust(rect.width, rect.height);
+        starsRef.current = makeStars(rect.width, rect.height, isMobile);
+        dustRef.current = makeCosmicDust(rect.width, rect.height, isMobile);
         shootingRef.current = [];
       } else {
-        caseBoardRef.current = makeCaseBoard(rect.width, rect.height);
-        dustMotesRef.current = makeDustMotes(rect.width, rect.height);
+        caseBoardRef.current = makeCaseBoard(rect.width, rect.height, isMobile);
+        dustMotesRef.current = makeDustMotes(rect.width, rect.height, isMobile);
       }
     };
 
@@ -564,13 +580,14 @@ export default function StarfieldBackground() {
         prevDarkRef.current = darkRef.current;
         darkRef.current = isDark;
         const rect = canvas.getBoundingClientRect();
+        const isMobile = rect.width < 768;
         if (isDark) {
-          starsRef.current = makeStars(rect.width, rect.height);
-          dustRef.current = makeCosmicDust(rect.width, rect.height);
+          starsRef.current = makeStars(rect.width, rect.height, isMobile);
+          dustRef.current = makeCosmicDust(rect.width, rect.height, isMobile);
           shootingRef.current = [];
         } else {
-          caseBoardRef.current = makeCaseBoard(rect.width, rect.height);
-          dustMotesRef.current = makeDustMotes(rect.width, rect.height);
+          caseBoardRef.current = makeCaseBoard(rect.width, rect.height, isMobile);
+          dustMotesRef.current = makeDustMotes(rect.width, rect.height, isMobile);
         }
       }
     };

@@ -3,12 +3,13 @@
 import { DetectiveId, DetectiveReasoning, StepType } from '@/lib/types';
 import { PERSONA_MAP } from '@/lib/constants';
 import { useI18n } from '@/i18n/context';
-import { Loader2, CheckCircle, Download, Copy, Check, Combine, AlertTriangle, BookOpen, Brain, FileText, MessageSquare, Clock, Share2, Image as ImageIcon, Swords } from 'lucide-react';
+import { Loader2, CheckCircle, Download, Copy, Check, Combine, AlertTriangle, BookOpen, Brain, FileText, MessageSquare, Clock, Share2, Image as ImageIcon, Swords, X } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
 import { remarkHighlightTags } from '@/lib/remark-highlight-tags';
 import { useAnalysisStore } from '@/store/analysis-store';
+import { useAnalysis } from '@/hooks/use-analysis';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/components/layout/toast';
 import KnowledgePanel from './knowledge-panel';
@@ -232,7 +233,7 @@ function SynthesisSection() {
         )}
       </div>
       <div className="p-4 prose prose-sm max-w-none prose-invert text-[var(--foreground)]">
-        <ReactMarkdown remarkPlugins={[remarkGfm, remarkHighlightTags]} rehypePlugins={[rehypeRaw]}>{synthesisText}</ReactMarkdown>
+        <ReactMarkdown remarkPlugins={[remarkGfm, remarkHighlightTags]} rehypePlugins={[rehypeSanitize]}>{synthesisText}</ReactMarkdown>
       </div>
     </div>
   );
@@ -242,6 +243,7 @@ export default function AnalysisView() {
   const { t } = useI18n();
   const { detectives, finalReport, isAnalyzing, error, selectedPersonas, mode, isSynthesizing, knowledgeState } =
     useAnalysisStore();
+  const { cancelAnalysis } = useAnalysis();
   const [copied, setCopied] = useState(false);
   const [fontSize, setFontSize] = useState(14);
   const { toast } = useToast();
@@ -381,6 +383,15 @@ export default function AnalysisView() {
         </div>
         <div className="flex items-center gap-2">
           {isAnalyzing && <AnalysisProgress />}
+          {isAnalyzing && (
+            <button
+              onClick={cancelAnalysis}
+              className="flex items-center gap-1 px-2 py-1 rounded-lg bg-red-900/50 border border-red-500/30 text-red-300 text-xs font-medium hover:bg-red-900/70 transition-colors shrink-0"
+            >
+              <X size={12} />
+              {t('home.cancel')}
+            </button>
+          )}
         </div>
       </div>
 
@@ -485,7 +496,7 @@ export default function AnalysisView() {
                 className="report-content p-4 prose prose-sm max-w-none prose-invert"
                 style={{ fontSize: `${fontSize}px` }}
               >
-                <ReactMarkdown remarkPlugins={[remarkGfm, remarkHighlightTags]} rehypePlugins={[rehypeRaw]}>{finalReport}</ReactMarkdown>
+                <ReactMarkdown remarkPlugins={[remarkGfm, remarkHighlightTags]} rehypePlugins={[rehypeSanitize]}>{finalReport}</ReactMarkdown>
               </div>
             </div>
           </div>

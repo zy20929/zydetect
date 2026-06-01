@@ -13,9 +13,16 @@ import { Loader2, Sparkles, Search, MapPin, Brain, Check } from 'lucide-react';
 
 export default function Home() {
   const { startAnalysis } = useAnalysis();
-  const { imageDataUrls, selectedPersonas, isAnalyzing, finalReport } = useAnalysisStore();
+  const { imageDataUrls, selectedPersonas, isAnalyzing, finalReport, error } = useAnalysisStore();
   const { t } = useI18n();
   const [hasStarted, setHasStarted] = useState(false);
+
+  // 当图片被清空或取消/出错时，重置"已推理"状态
+  useEffect(() => {
+    if (imageDataUrls.length === 0 && !isAnalyzing && !finalReport) {
+      setHasStarted(false);
+    }
+  }, [imageDataUrls.length, isAnalyzing, finalReport]);
 
   useEffect(() => {
     loadHistoryFromStorage();

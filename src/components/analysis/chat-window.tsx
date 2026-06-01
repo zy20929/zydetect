@@ -8,6 +8,7 @@ import { ChatMessage, ReasoningStep } from '@/lib/types';
 import { Send, Trash2, Loader2, MessageCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeSanitize from 'rehype-sanitize';
 
 /** 根据对话进展获取主题色（暗色主题） */
 function getTheme(messagesCount: number) {
@@ -164,6 +165,7 @@ export default function ChatWindow() {
           detectiveIds: selectedPersonas,
           messages: [...chatMessages, userMsg],
           lastAnalysisText: getLastAnalysisText(),
+          locale,
         }),
       });
 
@@ -281,7 +283,7 @@ export default function ChatWindow() {
               `}
             >
               {msg.role === 'assistant' ? (
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSanitize]}>{msg.content}</ReactMarkdown>
               ) : (
                 <p className="whitespace-pre-wrap">{msg.content}</p>
               )}
@@ -292,7 +294,7 @@ export default function ChatWindow() {
         {streamingText && (
           <div className="flex justify-start">
             <div className={`max-w-[80%] ${theme.bubble} rounded-2xl rounded-bl-sm px-4 py-3 border shadow-sm text-sm text-[var(--foreground)]/80 transition-colors duration-500`}>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{streamingText}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSanitize]}>{streamingText}</ReactMarkdown>
             </div>
           </div>
         )}

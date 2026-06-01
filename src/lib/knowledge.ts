@@ -12,13 +12,15 @@ import { KnowledgeItem } from './types';
 export async function extractKeywords(
   imageBase64: string,
   onText?: (delta: string) => void,
+  timeoutMs = 5000,
 ): Promise<string[]> {
   const { streamClaudeVision } = await import('./claude');
 
   let fullText = '';
 
-  await streamClaudeVision(
-    `你是一个专业的图片分析助手。请分析这张图片，提取 3-5 个最有价值的搜索关键词。
+  await Promise.race([
+    streamClaudeVision(
+      `你是一个专业的图片分析助手。请分析这张图片，提取 3-5 个最有价值的搜索关键词。
 
 这些关键词应该能帮助搜索引擎找到关于图中内容的真实信息。
 
@@ -38,16 +40,20 @@ export async function extractKeywords(
 战神广场
 铁结构建筑
 1889年`,
-    imageBase64,
-    {
-      onText: (delta) => {
-        fullText += delta;
-        onText?.(delta);
+      imageBase64,
+      {
+        onText: (delta) => {
+          fullText += delta;
+          onText?.(delta);
+        },
+        onDone: () => {},
+        onError: () => {},
       },
-      onDone: () => {},
-      onError: () => {},
-    },
-  );
+    ),
+    new Promise<void>((_, reject) =>
+      setTimeout(() => reject(new Error('extractKeywords timeout')), timeoutMs),
+    ),
+  ]);
 
   // 解析关键词：按行分割，去除空行
   const keywords = fullText

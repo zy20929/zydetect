@@ -9,6 +9,7 @@ interface ChatRequest {
   detectiveIds: DetectiveId[];
   messages: ChatMessage[];
   lastAnalysisText: string;
+  locale?: string;
 }
 
 /** SSE 事件编码 */
@@ -19,7 +20,7 @@ function sse(data: unknown): string {
 export async function POST(request: NextRequest) {
   try {
     const body: ChatRequest = await request.json();
-    const { images, detectiveIds, messages, lastAnalysisText } = body;
+    const { images, detectiveIds, messages, lastAnalysisText, locale = 'zh' } = body;
 
     if (!images || images.length === 0 || !detectiveIds || detectiveIds.length === 0) {
       return new Response(sse({ type: 'error', message: '缺少必要参数' }), {
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 构建系统提示词
-    const systemPrompt = buildChatSystemPrompt(detectiveIds, lastAnalysisText);
+    const systemPrompt = buildChatSystemPrompt(detectiveIds, lastAnalysisText, locale);
 
     // 将对话历史转换为 Claude 格式
     const chatHistory = messages.map((msg) => ({
@@ -83,7 +84,7 @@ export async function POST(request: NextRequest) {
 }
 
 /** 构建对话系统提示词 */
-function buildChatSystemPrompt(detectiveIds: DetectiveId[], lastAnalysisText: string): string {
+function buildChatSystemPrompt(detectiveIds: DetectiveId[], lastAnalysisText: string, locale: string): string {
   const personas = detectiveIds.map((id) => PERSONA_MAP[id]).filter(Boolean);
 
   let prompt = '';
@@ -122,6 +123,12 @@ ${lastAnalysisText}
 3. 保持侦探推理的语言风格和角色设定
 4. 回答要具体、详细，避免简短敷衍
 5. 使用 Markdown 格式输出`;
+
+  // 添加语言指令
+  switch (locale) {
+    case 'en': prompt += '\n\n## Language\nPlease respond entirely in English.'; break;
+    default: prompt += '\n\n## 语言\n请使用简体中文回答。';
+  }
 
   return prompt;
 }

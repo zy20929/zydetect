@@ -2,12 +2,12 @@
 
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { Locale } from '@/lib/types';
-import { zh, en, ja, ko } from './translations';
+import { zh, en } from './translations';
 
 /** 宽松翻译类型 — 允许不同语言的不同字符串 */
 type TranslationObj = Record<string, string | ((...args: unknown[]) => string) | Record<string, unknown>>;
 
-const translations: Record<Locale, TranslationObj> = { zh, en, ja, ko };
+const translations: Record<Locale, TranslationObj> = { zh, en };
 
 interface I18nContextType {
   locale: Locale;
@@ -22,8 +22,6 @@ const I18nContext = createContext<I18nContextType | null>(null);
 const LOCALES = [
   { code: 'zh' as Locale, label: '中文', flag: '🇨🇳' },
   { code: 'en' as Locale, label: 'English', flag: '🇬🇧' },
-  { code: 'ja' as Locale, label: '日本語', flag: '🇯🇵' },
-  { code: 'ko' as Locale, label: '한국어', flag: '\u{1F1F0}\u{1F1F7}' },
 ];
 
 /**
@@ -47,7 +45,7 @@ function getValueByKey(obj: unknown, path: string): unknown {
 function getSavedLocale(): Locale {
   if (typeof window === 'undefined') return 'zh';
   const saved = localStorage.getItem('locale');
-  if (saved && ['zh', 'en', 'ja', 'ko'].includes(saved)) return saved as Locale;
+  if (saved && ['zh', 'en'].includes(saved)) return saved as Locale;
   return 'zh';
 }
 

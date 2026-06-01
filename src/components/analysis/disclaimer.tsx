@@ -2,9 +2,9 @@
 
 import { Shield, AlertTriangle, Info } from 'lucide-react';
 import { useI18n } from '@/i18n/context';
-import { zh, en, ja, ko } from '@/i18n/translations';
+import { zh, en } from '@/i18n/translations';
 
-const DISCLAIMER_ITEMS: Record<string, readonly string[]> = { zh: zh.disclaimer.items, en: en.disclaimer.items, ja: ja.disclaimer.items, ko: ko.disclaimer.items };
+const DISCLAIMER_ITEMS: Record<string, readonly string[]> = { zh: zh.disclaimer.items, en: en.disclaimer.items };
 
 /** Disclaimer at the bottom of analysis reports */
 export default function AnalysisDisclaimer() {

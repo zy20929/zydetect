@@ -30,10 +30,21 @@ function formatApiError(raw: string): string {
 /** 初始化知识库（确保数据目录存在） */
 initKnowledgeBase();
 
+/** 根据用户语言生成系统提示词后缀 */
+function getLanguageInstruction(locale: string): string {
+  switch (locale) {
+    case 'en':
+      return '\n\n## Language\nPlease respond entirely in English.';
+    default:
+      return '\n\n## 语言\n请使用简体中文回答。';
+  }
+}
+
 interface AnalyzeRequest {
   images: string[];
   personas: DetectiveId[];
   mode: AnalysisMode;
+  locale?: string;
 }
 
 /** SSE 事件编码 */
@@ -107,7 +118,7 @@ function generateKnowledgeOnlyReport(
 export async function POST(request: NextRequest) {
   try {
     const body: AnalyzeRequest = await request.json();
-    const { images, personas, mode } = body;
+    const { images, personas, mode, locale = 'zh' } = body;
 
     if (!images || images.length === 0 || !personas || personas.length === 0) {
       return new Response(
@@ -190,8 +201,7 @@ export async function POST(request: NextRequest) {
             ),
           ]);
         } catch {
-          // 知识检索失败不影响后续流程
-          enqueue({ type: 'error', message: '外部知识检索失败，将使用纯视觉推理' });
+          // 知识检索失败不影响后续流程，静默跳过
         }
 
         // 从本地知识库检索相关知识
@@ -214,9 +224,9 @@ export async function POST(request: NextRequest) {
         const knowledgeContext = buildKnowledgeContext(externalKnowledge, localKnowledge);
 
         if (mode === 'solo') {
-          await handleSolo(enqueue, images, personas[0], knowledgeContext);
+          await handleSolo(enqueue, images, personas[0], knowledgeContext, locale);
         } else {
-          await handleGroup(enqueue, images, personas, knowledgeContext);
+          await handleGroup(enqueue, images, personas, knowledgeContext, locale);
         }
 
         enqueue({ type: 'done' });
@@ -277,6 +287,7 @@ async function handleSolo(
   images: string[],
   detectiveId: DetectiveId,
   knowledgeContext: string,
+  locale: string,
 ): Promise<void> {
   enqueue({ type: 'detective_start', detectiveId });
 
@@ -310,9 +321,8 @@ async function handleSolo(
   };
 
   const basePrompt = getSystemPrompt(detectiveId);
-  const systemPrompt = knowledgeContext
-    ? basePrompt + knowledgeContext
-    : basePrompt;
+  const langSuffix = getLanguageInstruction(locale);
+  const systemPrompt = basePrompt + knowledgeContext + langSuffix;
 
   await streamClaudeVision(systemPrompt, images, callbacks);
 }
@@ -323,8 +333,10 @@ async function handleGroup(
   images: string[],
   personaIds: DetectiveId[],
   knowledgeContext: string,
+  locale: string,
 ): Promise<void> {
   const results: Record<string, string> = {};
+  const langSuffix = getLanguageInstruction(locale);
 
   // 第一阶段：并行分析每位侦探
   const promises = personaIds.map(
@@ -359,9 +371,7 @@ async function handleGroup(
         };
 
         const basePrompt = getSystemPrompt(detectiveId);
-        const systemPrompt = knowledgeContext
-          ? basePrompt + knowledgeContext
-          : basePrompt;
+        const systemPrompt = basePrompt + knowledgeContext + langSuffix;
 
         streamClaudeVision(systemPrompt, images, callbacks);
       }),
@@ -371,7 +381,7 @@ async function handleGroup(
 
   // 第二阶段：AI 综合推理
   enqueue({ type: 'synthesis_start' });
-  const synthesisReport = await generateSynthesis(enqueue, personaIds, results, knowledgeContext);
+  const synthesisReport = await generateSynthesis(enqueue, personaIds, results, knowledgeContext, locale);
 
   // 分析完成后更新知识库
   updateKnowledgeFromAnalysis(synthesisReport, personaIds);
@@ -387,6 +397,7 @@ async function generateSynthesis(
   personaIds: DetectiveId[],
   results: Record<string, string>,
   knowledgeContext: string,
+  locale: string,
 ): Promise<string> {
   // 拼接所有侦探的推理结果作为输入
   const combinedInput = personaIds
@@ -424,9 +435,7 @@ async function generateSynthesis(
 
 请用侦探推理的语言风格，逻辑清晰，推理严谨。`;
 
-  const systemPrompt = knowledgeContext
-    ? synthesisSystemPrompt + knowledgeContext
-    : synthesisSystemPrompt;
+  const systemPrompt = synthesisSystemPrompt + knowledgeContext + getLanguageInstruction(locale);
 
   let fullText = '';
 

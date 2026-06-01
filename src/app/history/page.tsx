@@ -39,7 +39,7 @@ export default function HistoryPage() {
               {item.personas.map((p) => PERSONA_MAP[p]?.nameZh).join(' & ')} {t('history.reportTemplate', item.personas.map((p) => PERSONA_MAP[p]?.nameZh).join(' & '))}
             </h2>
             <p className="text-xs text-[var(--foreground)]/40 mt-1">
-              {new Date(item.createdAt).toLocaleString(locale === 'zh' ? 'zh-CN' : locale === 'ja' ? 'ja-JP' : locale === 'ko' ? 'ko-KR' : 'en-US')}
+              {new Date(item.createdAt).toLocaleString(locale === 'zh' ? 'zh-CN' : 'en-US')}
             </p>
           </div>
           <div className="p-6 prose prose-sm max-w-none prose-invert">
@@ -65,7 +65,7 @@ export default function HistoryPage() {
                   {item.personas.map((p) => PERSONA_MAP[p]?.nameZh).join(' & ')}
                 </h3>
                 <p className="text-sm text-[var(--foreground)]/40 mt-1">
-                  {new Date(item.createdAt).toLocaleString(locale === 'zh' ? 'zh-CN' : locale === 'ja' ? 'ja-JP' : locale === 'ko' ? 'ko-KR' : 'en-US')}
+                  {new Date(item.createdAt).toLocaleString(locale === 'zh' ? 'zh-CN' : 'en-US')}
                 </p>
               </div>
               <div className="flex gap-2">
