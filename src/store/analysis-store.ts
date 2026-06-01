@@ -234,6 +234,14 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
           }
           return { detectives };
 
+        // 侦探推理文字流式更新
+        case 'detective_delta':
+          if (detectives[event.detectiveId]) {
+            const d = detectives[event.detectiveId];
+            detectives[event.detectiveId] = { ...d, fullText: event.fullText };
+          }
+          return { detectives };
+
         // 收到推理步骤
         case 'step':
           if (detectives[event.detectiveId]) {

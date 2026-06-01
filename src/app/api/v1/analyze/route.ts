@@ -297,6 +297,7 @@ async function handleSolo(
   const callbacks: StreamCallbacks = {
     onText: (delta) => {
       fullText += delta;
+      enqueue({ type: 'detective_delta', detectiveId, fullText });
       const allSteps = extractAllSteps(fullText, emittedSteps);
       for (const step of allSteps) {
         if (!emittedSteps.has(step.id)) {
@@ -350,6 +351,7 @@ async function handleGroup(
         const callbacks: StreamCallbacks = {
           onText: (delta) => {
             fullText += delta;
+            enqueue({ type: 'detective_delta', detectiveId, fullText });
             const allSteps = extractAllSteps(fullText, emittedSteps);
             for (const step of allSteps) {
               if (!emittedSteps.has(step.id)) {

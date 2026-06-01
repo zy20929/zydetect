@@ -122,6 +122,7 @@ export type SSEEvent =
   | { type: 'knowledge_result'; knowledge: KnowledgeItem[]; localKnowledge: KnowledgeEntry[] }
   | { type: 'knowledge_update'; added: number }
   | { type: 'detective_start'; detectiveId: DetectiveId }
+  | { type: 'detective_delta'; detectiveId: DetectiveId; fullText: string }
   | { type: 'step'; detectiveId: DetectiveId; step: ReasoningStep }
   | { type: 'detective_complete'; detectiveId: DetectiveId; fullText: string }
   | { type: 'synthesis_start' }
