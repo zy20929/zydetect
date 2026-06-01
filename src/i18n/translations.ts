@@ -26,6 +26,7 @@ export const zh = {
     searchDetectives: '搜索侦探...',
     selectedCount: (count: number) => `已选择 ${count} 位侦探`,
     noMatch: '没有找到匹配的侦探',
+    maxDetectives: '组团推理最多选择 3 位侦探',
   },
   // 分类
   categories: {
@@ -365,6 +366,7 @@ export const en = {
     searchDetectives: 'Search detectives...',
     selectedCount: (count: number) => `${count} detective${count > 1 ? 's' : ''} selected`,
     noMatch: 'No matching detectives found',
+    maxDetectives: 'Group reasoning supports maximum 3 detectives',
   },
   categories: {
     all: 'All', classic: 'Classic',
@@ -656,6 +658,7 @@ export const ja = {
     searchDetectives: '探偵を検索...',
     selectedCount: (count: number) => `${count}人の探偵を選択中`,
     noMatch: '一致する探偵が見つかりません',
+    maxDetectives: 'グループ推理は最大3人の探偵まで選択可能',
   },
   categories: {
     all: 'すべて', classic: 'クラシック',
@@ -947,6 +950,7 @@ export const ko = {
     searchDetectives: '탐정 검색...',
     selectedCount: (count: number) => `탐정 ${count}명 선택`,
     noMatch: '일치하는 탐정이 없습니다',
+    maxDetectives: '그룹 추리는 최대 3명의 탐정만 선택 가능',
   },
   categories: {
     all: '전체', classic: '클래식',

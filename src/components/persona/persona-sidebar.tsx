@@ -7,6 +7,7 @@ import { useI18n } from '@/i18n/context';
 import { Check, Users, User, Search, Loader2, Sparkles, ChevronDown, Eye, HelpCircle, Brain, CheckCircle, Star } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import FavoritesManager from './favorites-manager';
+import { useToast } from '@/components/layout/toast';
 
 /** 侦探分类 */
 const CATEGORIES = [
@@ -200,6 +201,8 @@ export default function PersonaSidebar({
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  const { toast } = useToast();
+
   const togglePersona = (id: DetectiveId) => {
     if (selectedPersonas.includes(id)) {
       setPersonas(selectedPersonas.filter((p) => p !== id));
@@ -207,6 +210,10 @@ export default function PersonaSidebar({
       if (mode === 'solo') {
         setPersonas([id]);
       } else {
+        if (selectedPersonas.length >= 3) {
+          toast(t('home.maxDetectives'), 'info');
+          return;
+        }
         setPersonas([...selectedPersonas, id]);
       }
     }

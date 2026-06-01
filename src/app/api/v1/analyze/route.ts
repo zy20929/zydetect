@@ -8,6 +8,25 @@ import { gatherKnowledge } from '@/lib/knowledge';
 import { searchKnowledge, readAllEntries, addEntries, initKnowledgeBase } from '@/lib/knowledge-base';
 import type { KnowledgeEntry } from '@/lib/types';
 
+/** 将 API 原始错误转换为友好中文提示 */
+function formatApiError(raw: string): string {
+  if (raw.includes('429') || raw.includes('rate_limit') || raw.includes('throttl')) {
+    return 'AI 推理引擎繁忙，请求过于频繁，请稍后重试';
+  }
+  if (raw.includes('network') || raw.includes('ECONNREFUSED') || raw.includes('timeout')) {
+    return '网络连接异常，请检查网络后重试';
+  }
+  if (raw.includes('401') || raw.includes('unauthorized')) {
+    return 'API 密钥无效，请联系管理员';
+  }
+  if (raw.includes('500') || raw.includes('internal')) {
+    return '服务器内部错误，请稍后重试';
+  }
+  // 截去过长的原始消息，只保留核心信息
+  const msg = raw.replace(/\{[\s\S]*\}/, '').trim();
+  return msg || '分析过程出现异常，请稍后重试';
+}
+
 /** 初始化知识库（确保数据目录存在） */
 initKnowledgeBase();
 
@@ -273,7 +292,7 @@ async function handleSolo(
       enqueue({ type: 'report', content: report });
     },
     onError: (err) => {
-      enqueue({ type: 'error', message: err.message });
+      enqueue({ type: 'error', message: formatApiError(err.message) });
     },
   };
 
@@ -321,7 +340,7 @@ async function handleGroup(
             resolve();
           },
           onError: (err) => {
-            enqueue({ type: 'error', message: err.message });
+            enqueue({ type: 'error', message: formatApiError(err.message) });
             resolve();
           },
         };
@@ -411,7 +430,7 @@ async function generateSynthesis(
           enqueue({ type: 'synthesis_complete', content: fullText });
         },
         onError: (err) => {
-          enqueue({ type: 'error', message: `综合推理失败: ${err.message}` });
+          enqueue({ type: 'error', message: `综合推理失败: ${formatApiError(err.message)}` });
         },
       },
     );

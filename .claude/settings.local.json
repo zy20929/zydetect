@@ -73,7 +73,9 @@
       "Bash(curl *)",
       "Bash(python3 -c ' *)",
       "Bash(zip -r /tmp/zydetect-deploy.zip . -x \"*.DS_Store\")",
-      "Bash(tar czf *)"
+      "Bash(tar czf *)",
+      "WebFetch(domain:vercel.com)",
+      "Bash(npx vercel *)"
     ]
   }
 }
