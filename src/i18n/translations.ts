@@ -282,6 +282,7 @@ export const zh = {
   },
   // 知识面板
   knowledgePanel: {
+    title: '知识检索',
     factRetrieval: '事实依据检索',
     searchingWikipedia: '搜索 Wikipedia...',
     searchingDuckDuckGo: '搜索 DuckDuckGo...',
@@ -601,6 +602,7 @@ export const en = {
     wordsLabel: 'Word Count',
   },
   knowledgePanel: {
+    title: 'Knowledge Retrieval',
     factRetrieval: 'Fact Retrieval',
     searchingWikipedia: 'Searching Wikipedia...',
     searchingDuckDuckGo: 'Searching DuckDuckGo...',
@@ -891,6 +893,7 @@ export const ja = {
     wordsLabel: '文字数',
   },
   knowledgePanel: {
+    title: '知識検索',
     factRetrieval: '事実根拠検索',
     searchingWikipedia: 'Wikipediaを検索中...',
     searchingDuckDuckGo: 'DuckDuckGoを検索中...',
@@ -1188,6 +1191,7 @@ export const ko = {
     wordsLabel: '글자 수',
   },
   knowledgePanel: {
+    title: '지식 검색',
     factRetrieval: '사실 근거 검색',
     searchingWikipedia: 'Wikipedia 검색 중...',
     searchingDuckDuckGo: 'DuckDuckGo 검색 중...',
