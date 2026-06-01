@@ -293,11 +293,18 @@ async function handleSolo(
 
   let fullText = '';
   const emittedSteps = new Set<string>();
+  let lastDeltaTime = 0;
+  const deltaThrottle = 100; // 节流间隔 ms
 
   const callbacks: StreamCallbacks = {
     onText: (delta) => {
       fullText += delta;
-      enqueue({ type: 'detective_delta', detectiveId, fullText });
+      // 节流发送 detective_delta，每 100ms 最多一次
+      const now = Date.now();
+      if (now - lastDeltaTime >= deltaThrottle) {
+        lastDeltaTime = now;
+        enqueue({ type: 'detective_delta', detectiveId, fullText });
+      }
       const allSteps = extractAllSteps(fullText, emittedSteps);
       for (const step of allSteps) {
         if (!emittedSteps.has(step.id)) {
@@ -347,11 +354,17 @@ async function handleGroup(
 
         let fullText = '';
         const emittedSteps = new Set<string>();
+        let lastDeltaTime = 0;
+        const deltaThrottle = 100;
 
         const callbacks: StreamCallbacks = {
           onText: (delta) => {
             fullText += delta;
-            enqueue({ type: 'detective_delta', detectiveId, fullText });
+            const now = Date.now();
+            if (now - lastDeltaTime >= deltaThrottle) {
+              lastDeltaTime = now;
+              enqueue({ type: 'detective_delta', detectiveId, fullText });
+            }
             const allSteps = extractAllSteps(fullText, emittedSteps);
             for (const step of allSteps) {
               if (!emittedSteps.has(step.id)) {
