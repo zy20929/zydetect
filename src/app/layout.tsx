@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/layout/header';
 import { I18nProvider } from '@/i18n/context';
+import StarfieldBackground from '@/components/layout/starfield-background';
 import { ToastProvider } from '@/components/layout/toast';
 
 const inter = Inter({
@@ -48,9 +49,10 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen flex flex-col font-sans text-[var(--foreground)]">
+      <body className="min-h-screen flex flex-col font-sans text-[var(--foreground)] relative">
         <ToastProvider>
-          <div className="flex flex-col min-h-screen flex-1">
+          <StarfieldBackground />
+          <div className="relative z-10 flex flex-col min-h-screen flex-1">
             <I18nProvider>
               <Header />
               <main className="flex-1">{children}</main>
