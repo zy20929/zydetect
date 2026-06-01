@@ -55,7 +55,7 @@ export const zh = {
     analysis: '推理',
     conclusion: '结论',
     disclaimer: '免责声明',
-    disclaimerText: '本报告由 AI 生成，仅供参考和娱乐，不构成任何专业建议。推理结果可能存在不准确之处。',
+    disclaimerText: '本报告由推理引擎生成，仅供参考和娱乐，不构成任何专业建议。推理结果可能存在不准确之处。',
     liveReasoning: '实时推理',
     synthesisReasoning: '联合综合推理',
     duel: '侦探对决',

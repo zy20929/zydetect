@@ -11,7 +11,7 @@ import type { KnowledgeEntry } from '@/lib/types';
 /** 将 API 原始错误转换为友好中文提示 */
 function formatApiError(raw: string): string {
   if (raw.includes('429') || raw.includes('rate_limit') || raw.includes('throttl')) {
-    return 'AI 推理引擎繁忙，请求过于频繁，请稍后重试';
+    return '推理引擎繁忙，请求过于频繁，请稍后重试';
   }
   if (raw.includes('network') || raw.includes('ECONNREFUSED') || raw.includes('timeout')) {
     return '网络连接异常，请检查网络后重试';
@@ -53,12 +53,12 @@ function generateKnowledgeOnlyReport(
 
   if (localKnowledge.length === 0) {
     report += `⚠️ **当前知识库中没有可用的历史经验数据。**\n\n`;
-    report += `由于 AI 模型暂时不可用，且知识库中没有相关经验，无法生成推理报告。\n`;
-    report += `建议：\n- 尝试先使用 AI 模型进行几次分析以积累知识库\n- 检查 API 配置是否正确\n- 稍后重试\n`;
+    report += `由于推理引擎暂时不可用，且知识库中没有相关经验，无法生成推理报告。\n`;
+    report += `建议：\n- 尝试先进行几次分析以积累知识库\n- 检查 API 配置是否正确\n- 稍后重试\n`;
     return report;
   }
 
-  report += `> ⚠️ AI 模型当前不可用，以下推理基于历史知识库中的经验数据。\n\n`;
+  report += `> ⚠️ 推理引擎当前不可用，以下推理基于历史知识库中的经验数据。\n\n`;
 
   // 按分类分组
   const grouped: Record<string, typeof localKnowledge> = {};
@@ -99,7 +99,7 @@ function generateKnowledgeOnlyReport(
     report += `- **${label}**: ${topItems.map((item) => item.content).join('；')}\n`;
   }
 
-  report += `\n---\n*此报告由知识库自动生成，AI 模型恢复后将提供基于视觉的推理分析。*`;
+  report += `\n---\n*此报告由知识库自动生成，推理引擎恢复后将提供基于视觉的推理分析。*`;
 
   return report;
 }
@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
           // 为每位侦探标记开始和完成
           for (const detectiveId of personas) {
             enqueue({ type: 'detective_start', detectiveId });
-            enqueue({ type: 'detective_complete', detectiveId, fullText: 'AI 模型不可用，使用知识库推理。' });
+            enqueue({ type: 'detective_complete', detectiveId, fullText: '推理引擎不可用，使用知识库推理。' });
           }
 
           // 生成知识库推理报告
@@ -191,7 +191,7 @@ export async function POST(request: NextRequest) {
           ]);
         } catch {
           // 知识检索失败不影响后续流程
-          enqueue({ type: 'error', message: '外部知识检索失败，将使用纯 AI 推理' });
+          enqueue({ type: 'error', message: '外部知识检索失败，将使用纯视觉推理' });
         }
 
         // 从本地知识库检索相关知识
