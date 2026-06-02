@@ -36,10 +36,6 @@ export default function Home() {
     await startAnalysis();
   };
 
-  // 步骤状态
-  const step1Done = imageDataUrls.length > 0;
-  const step2Done = selectedPersonas.length > 0;
-
   return (
     <div className="min-h-screen pb-12">
       {/* 顶部横幅 */}
@@ -68,30 +64,6 @@ export default function Home() {
           <p className="text-[var(--foreground)]/50 max-w-2xl mx-auto text-xs sm:text-sm px-2">
             {t('home.subtitle')}
           </p>
-
-          {/* 步骤指示器 */}
-          <div className="flex items-center justify-center gap-2 sm:gap-4 mt-4 sm:mt-6">
-            {[
-              { num: '1', label: t('home.step1'), done: step1Done },
-              { num: '2', label: t('home.step2'), done: step2Done },
-              { num: '3', label: t('home.step3'), done: hasStarted || !!finalReport },
-            ].map((step, i) => (
-              <div key={i} className="flex items-center gap-1.5 sm:gap-2">
-                <div className={`
-                  w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold transition-all
-                  ${step.done
-                    ? 'bg-[var(--gold)] text-[var(--card-alt)]'
-                    : 'border border-[var(--gold)]/40 text-[var(--gold)]/60'}
-                `}>
-                  {step.done ? <Check size={12} /> : step.num}
-                </div>
-                <span className={`text-[10px] sm:text-xs hidden sm:inline ${step.done ? 'text-[var(--gold)]' : 'text-[var(--foreground)]/40'}`}>
-                  {step.label}
-                </span>
-                {i < 2 && <div className={`w-4 sm:w-6 h-px ${step.done ? 'bg-[var(--gold)]' : 'bg-[var(--card-border)]'}`} />}
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 
