@@ -76,7 +76,8 @@
       "Bash(tar czf *)",
       "WebFetch(domain:vercel.com)",
       "Bash(npx vercel *)",
-      "Bash(grep -n \"^export const\\\\|^} as const;$\" src/i18n/translations.ts)"
+      "Bash(grep -n \"^export const\\\\|^} as const;$\" src/i18n/translations.ts)",
+      "Bash(del *)"
     ]
   }
 }

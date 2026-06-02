@@ -36,6 +36,7 @@ export default async function RootLayout({
   return (
     <html lang={lang} className={`${inter.variable} antialiased`} suppressHydrationWarning>
       <head>
+        <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js" defer />
         <script
           dangerouslySetInnerHTML={{
             __html: `

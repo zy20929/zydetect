@@ -13,6 +13,7 @@
     "@anthropic-ai/sdk": "^0.97.1",
     "@tailwindcss/typography": "^0.5.19",
     "@vitejs/plugin-vue": "^6.0.7",
+    "@vue/compiler-sfc": "^3.5.35",
     "clsx": "^2.1.1",
     "lucide-react": "^1.16.0",
     "next": "16.2.6",
@@ -24,6 +25,7 @@
     "remark-gfm": "^4.0.1",
     "tailwind-merge": "^3.6.0",
     "vue": "^3.5.35",
+    "vue-loader": "^17.4.2",
     "zustand": "^5.0.13"
   },
   "devDependencies": {
