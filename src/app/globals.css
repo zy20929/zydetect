@@ -147,7 +147,8 @@ body {
 }
 
 /* ========== Canvas 星空容器 ========== */
-.starfield {
+.starfield,
+.starfield-canvas {
   position: fixed;
   top: 0;
   left: 0;
