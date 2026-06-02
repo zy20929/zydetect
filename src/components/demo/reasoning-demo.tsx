@@ -113,8 +113,6 @@ export default function ReasoningDemo() {
     return hasActiveTask;
   }
 
-  const totalShown = DEMO_SCENARIOS.length - remaining.length;
-
   return (
     <div
       className="rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] overflow-hidden flex flex-col"
@@ -178,32 +176,6 @@ export default function ReasoningDemo() {
             </div>
           </div>
         ))}
-      </div>
-
-      {/* 场景指示器 */}
-      <div className="px-3 pb-3 flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          {DEMO_SCENARIOS.slice(0, 10).map((_, index) => {
-            // 只显示前 10 个点 + 一个省略指示
-            const scenarioIndex = allIndices.current.indexOf(currentIndex);
-            return (
-              <div
-                key={index}
-                className={`w-1.5 h-1.5 rounded-full transition-all ${
-                  index === scenarioIndex
-                    ? 'bg-[var(--gold)] w-4'
-                    : index < scenarioIndex
-                      ? 'bg-[var(--gold)]/30'
-                      : 'bg-[var(--card-border)]'
-                }`}
-              />
-            );
-          })}
-          <span className="text-[9px] text-[var(--foreground)]/20 ml-1">…{DEMO_SCENARIOS.length}</span>
-        </div>
-        <span className="text-[10px] text-[var(--foreground)]/20">
-          {totalShown}/{DEMO_SCENARIOS.length}
-        </span>
       </div>
     </div>
   );

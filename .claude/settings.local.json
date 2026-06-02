@@ -75,7 +75,8 @@
       "Bash(zip -r /tmp/zydetect-deploy.zip . -x \"*.DS_Store\")",
       "Bash(tar czf *)",
       "WebFetch(domain:vercel.com)",
-      "Bash(npx vercel *)"
+      "Bash(npx vercel *)",
+      "Bash(grep -n \"^export const\\\\|^} as const;$\" src/i18n/translations.ts)"
     ]
   }
 }
