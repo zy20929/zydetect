@@ -154,6 +154,12 @@ function mountStarfield(container: HTMLElement, Vue: any) {
       }
 
       function render(ctx: CanvasRenderingContext2D, w: number, h: number, t: number) {
+        // 亮色模式：清空画布，让 CSS 背景色透出来
+        if (!getDark()) {
+          ctx.clearRect(0, 0, w, h);
+          return;
+        }
+
         const shift = Math.sin(t * 0.08) * 5;
         const bgGrad = ctx.createLinearGradient(0, 0, w * 0.5 + Math.sin(t * 0.05) * w * 0.1, h);
         bgGrad.addColorStop(0, `rgb(${10 + shift}, ${10 + shift * 0.5}, ${26 + shift})`);
@@ -338,12 +344,21 @@ function mountStarfield(container: HTMLElement, Vue: any) {
 
       function checkTheme() {
         const dark = getDark();
+        const canvas = canvasRef.value;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
         if (dark) {
-          const canvas = canvasRef.value;
-          if (canvas) {
-            const rect = canvas.getBoundingClientRect();
-            reinit(rect.width, rect.height, rect.width < 768);
-          }
+          const rect = canvas.getBoundingClientRect();
+          reinit(rect.width, rect.height, rect.width < 768);
+        } else {
+          // 亮色模式：清空画布 + 清空星星数据
+          const rect = canvas.getBoundingClientRect();
+          ctx.clearRect(0, 0, rect.width, rect.height);
+          stars = [];
+          shootingStars = [];
+          cosmicDust = [];
         }
       }
 
