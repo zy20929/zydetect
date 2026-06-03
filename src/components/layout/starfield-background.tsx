@@ -300,12 +300,15 @@ function mountStarfield(container: HTMLElement, Vue: any) {
       }
 
       function loop() {
+        if (!isVisible) return; // 后台标签页：暂停渲染以节省 CPU/GPU
+
         const canvas = canvasRef.value;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        const dpr = window.devicePixelRatio || 1;
+        // DPR 上限 2，避免高分屏过度渲染（3x DPR = 9x 像素，浪费 GPU）
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
         const rect = canvas.getBoundingClientRect();
         const cw = rect.width * dpr;
         const ch = rect.height * dpr;
@@ -331,7 +334,7 @@ function mountStarfield(container: HTMLElement, Vue: any) {
         const canvas = canvasRef.value;
         if (!canvas) return;
         const rect = canvas.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
         canvas.width = rect.width * dpr;
         canvas.height = rect.height * dpr;
         reinit(rect.width, rect.height, rect.width < 768);
@@ -340,6 +343,12 @@ function mountStarfield(container: HTMLElement, Vue: any) {
       function onMouseMove(e: MouseEvent) {
         mouse.tx = e.clientX / window.innerWidth;
         mouse.ty = e.clientY / window.innerHeight;
+      }
+
+      let isVisible = true;
+      function onVisibilityChange() {
+        isVisible = !document.hidden;
+        if (isVisible) animId = requestAnimationFrame(loop);
       }
 
       function checkTheme() {
@@ -367,13 +376,14 @@ function mountStarfield(container: HTMLElement, Vue: any) {
         if (!canvas) return;
 
         const rect = canvas.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
         canvas.width = rect.width * dpr;
         canvas.height = rect.height * dpr;
         reinit(rect.width, rect.height, rect.width < 768);
 
         window.addEventListener('resize', onResize);
         window.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('visibilitychange', onVisibilityChange);
 
         const obs = new MutationObserver(checkTheme);
         obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
@@ -385,6 +395,7 @@ function mountStarfield(container: HTMLElement, Vue: any) {
         cancelAnimationFrame(animId);
         window.removeEventListener('resize', onResize);
         window.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('visibilitychange', onVisibilityChange);
       });
 
       return { canvasRef };

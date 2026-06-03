@@ -56,7 +56,9 @@ export function useAnalysis() {
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       if (attempt > 0) {
-        await new Promise(r => setTimeout(r, 2000));
+        // 指数退避：2s → 4s → 8s
+        const delay = 2000 * Math.pow(2, attempt - 1);
+        await new Promise(r => setTimeout(r, delay));
       }
 
       const controller = new AbortController();

@@ -10,6 +10,8 @@ import { useAnalysis } from '@/hooks/use-analysis';
 import { useAnalysisStore, loadHistoryFromStorage } from '@/store/analysis-store';
 import { useI18n } from '@/i18n/context';
 import { Loader2, Sparkles, Search, MapPin, Brain, Check } from 'lucide-react';
+import ErrorBoundary from '@/components/ui/error-boundary';
+import { AnalysisSkeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
   const { startAnalysis } = useAnalysis();
@@ -91,7 +93,9 @@ export default function Home() {
             {!hasStarted && !finalReport && <ReasoningDemo />}
 
             {(hasStarted || finalReport) && (
-              <AnalysisView />
+              <ErrorBoundary fallback={<AnalysisSkeleton />}>
+                <AnalysisView />
+              </ErrorBoundary>
             )}
             </div>
           </div>
